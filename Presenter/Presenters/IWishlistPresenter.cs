@@ -8,7 +8,7 @@ namespace Presenter;
 
 public interface IWishlistPresenter
 {
-    Task LoadUserWishlistsAsync(string userId);
+    Task<IReadOnlyCollection<Wishlist>> LoadUserWishlistsAsync(string userId);
     Task AddNewWishlistAsync(Wishlist wishlist, CancellationToken token);
     Task DeleteWishlistAsync(Guid wishlistId);
 }

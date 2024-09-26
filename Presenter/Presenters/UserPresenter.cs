@@ -8,15 +8,11 @@ namespace Presenter
 {
     public class UserPresenter : IUserPresenter
     {
-        private readonly AuthenticationService _authService;
-        private readonly UserRepository _userRepository;
+        private  AuthenticationService _authService = new AuthenticationService();
+        private UserRepository _userRepository = new UserRepository();
 
         // Конструктор с внедрением зависимостей (можно использовать DI)
-        public UserPresenter(AuthenticationService authService, UserRepository userRepository)
-        {
-            _authService = authService;
-            _userRepository = userRepository;
-        }
+       
 
         // Метод для создания нового пользователя
         public async Task CreateUserAsync(string name, string email, string password)
