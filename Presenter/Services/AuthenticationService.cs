@@ -24,7 +24,7 @@ namespace Presenter.Services
             {
                 string id = Guid.NewGuid().ToString();
                 await _userRepository.AddUserAsync(new User(id, name, email, HashPassword(password)));
-                Console.WriteLine("Registration successful!");
+   
             }
             else
             {
@@ -43,7 +43,7 @@ namespace Presenter.Services
                 if (user.PasswordHash == HashPassword(password))
                 {
                     _authenticatedUser = user;
-                    Console.WriteLine("Authentication successful! Welcome, " + user.Name);
+     
                 }
                 else
                 {
@@ -56,7 +56,7 @@ namespace Presenter.Services
             }
         }
 
-        public User GetAuthenticatedUser()
+        public async Task<User> GetAuthenticatedUserAsync()
         {
             if (_authenticatedUser != null)
             {
@@ -66,6 +66,11 @@ namespace Presenter.Services
             {
                 throw new Exception("No user is currently authenticated");
             }
+        }
+        public async Task LogoutAsync()
+        {
+            _authenticatedUser = null;
+            
         }
 
         private string HashPassword(string password)

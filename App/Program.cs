@@ -12,18 +12,8 @@ namespace Whishlist
     {
         static async Task Main(string[] args)
         {
-
             UserView userView = new UserView();
-            try
-            {
-                await userView.AuthUser();
-                await userView.ShowUser();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-
+            await userView.Start();
         }
 
 

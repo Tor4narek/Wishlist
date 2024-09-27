@@ -6,7 +6,9 @@ namespace Presenter;
 
 public interface IUserPresenter
 {
-    Task LoadUserAsync(string userId);
+    Task<User> LoadUserAsync(string userId);
     Task CreateUserAsync(string name, string email, string password);
     Task DeleteUserAsync(string userId);
+    Task<User> AuthenticateUserAsync(string email, string password);
+    Task<User> GetAuthenticatedUserAsync();
 }

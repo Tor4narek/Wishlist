@@ -9,7 +9,7 @@ namespace View;
 public interface IUserView
 {
     Task ShowUser();
-    Task AuthUser();
+    Task Start();
     void UpdateUserList();
     
 }
