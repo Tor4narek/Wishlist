@@ -11,6 +11,7 @@ namespace View;
 
 public interface IWishlistView
 {
-    void ShowUserWishlists(List<Wishlist> wishlists); 
+    Task ShowUserWishlistsAsync(User user);
+    Task AddWishlistAsync(string owner_id);
     void UpdateWishlist();
 }

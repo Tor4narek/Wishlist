@@ -10,10 +10,13 @@ namespace Presenter
     public class WishlistPresenter : IWishlistPresenter
     {
         private readonly WishlistRepository _wishlistRepository;
+        private readonly UserPresenter _userPresenter;
 
         public WishlistPresenter()
         {
             _wishlistRepository = new WishlistRepository();
+            _userPresenter = new UserPresenter();
+            
         }
 
         // Метод для загрузки всех вишлистов пользователя
@@ -23,22 +26,40 @@ namespace Presenter
             {
                 throw new ArgumentException("User ID cannot be null or empty.", nameof(userId));
             }
-
+            User user =await _userPresenter.LoadUserAsync(userId);
+            if (user == null)
+            {
+                throw new ArgumentException("User does not exist.", nameof(userId));
+            }
             var wishlists = await _wishlistRepository.GetUserWishlistsAsync(userId);
             return wishlists;
         }
 
         // Метод для добавления нового вишлиста
-        public async Task AddNewWishlistAsync(Wishlist wishlist, CancellationToken token)
+        public async Task AddNewWishlistAsync(string w_name, string w_description, string w_ownerId, string w_presentsNumber)
         {
-            if (wishlist == null)
+            if (string.IsNullOrWhiteSpace(w_name))
             {
-                throw new ArgumentNullException(nameof(wishlist), "Wishlist cannot be null.");
+                throw new ArgumentException("Name cannot be null or empty.", nameof(w_name));    
             }
 
-            // Используем токен отмены для управления задачами
-            token.ThrowIfCancellationRequested();
+            if (string.IsNullOrWhiteSpace(w_description))
+            {
+                throw new ArgumentException("Description cannot be null or empty.", nameof(w_description));
+            }
 
+            if (string.IsNullOrWhiteSpace(w_ownerId))
+            {
+                throw new ArgumentException("OwnerId cannot be null or empty.", nameof(w_ownerId));
+            }
+
+            if (string.IsNullOrWhiteSpace(w_presentsNumber))
+            {
+                throw new ArgumentException("Presents number cannot be null or empty.", nameof(w_presentsNumber));
+            }
+
+            string w_id = Guid.NewGuid().ToString();
+            var wishlist = new Wishlist(w_id, w_name, w_description, w_ownerId, w_presentsNumber);
             await _wishlistRepository.AddWishlistAsync(wishlist);
         }
 

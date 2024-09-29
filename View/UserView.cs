@@ -12,6 +12,7 @@ namespace View
     public class UserView : IUserView
     {
         private UserPresenter _userPresenter = new UserPresenter();
+        private WishlistView _wishlistView = new WishlistView();
         private bool _isProgramRunning = true;
 
         public async Task Start()
@@ -36,8 +37,6 @@ namespace View
                         await ShowUser();
                     }
                 }
-
-
             }
         }
 
@@ -66,7 +65,7 @@ namespace View
                     switch (choice)
                     {
                         case "1":
-                            // Логика просмотра вишлистов
+                            await _wishlistView.StartWishlist(username);
                             break;
 
                         case "2":
@@ -139,14 +138,41 @@ namespace View
             {
                 Console.WriteLine("Регистрация нового пользователя...");
 
-                Console.Write("Введите имя: ");
-                string name = Console.ReadLine();
+                string name;
+                do
+                {
+                    Console.Write("Введите имя: ");
+                    name = Console.ReadLine();
+                    if (string.IsNullOrWhiteSpace(name))
+                    {
+                        Console.WriteLine("Имя не может быть пустым. Пожалуйста, введите корректное имя.");
+                    }
+                }
+                while (string.IsNullOrWhiteSpace(name));
 
-                Console.Write("Введите электронную почту: ");
-                string email = Console.ReadLine();
+                string email;
+                do
+                {
+                    Console.Write("Введите электронную почту: ");
+                    email = Console.ReadLine();
+                    if (string.IsNullOrWhiteSpace(email))
+                    {
+                        Console.WriteLine("Электронная почта не может быть пустой. Пожалуйста, введите корректный адрес.");
+                    }
+                }
+                while (string.IsNullOrWhiteSpace(email));
 
-                Console.Write("Введите пароль: ");
-                string password = Console.ReadLine();
+                string password;
+                do
+                {
+                    Console.Write("Введите пароль: ");
+                    password = Console.ReadLine();
+                    if (string.IsNullOrWhiteSpace(password))
+                    {
+                        Console.WriteLine("Пароль не может быть пустым. Пожалуйста, введите пароль.");
+                    }
+                }
+                while (string.IsNullOrWhiteSpace(password));
 
                 try
                 {
@@ -167,11 +193,29 @@ namespace View
             {
                 Console.WriteLine("Аутентификация пользователя...");
 
-                Console.Write("Введите электронную почту: ");
-                string email = Console.ReadLine();
+                string email;
+                do
+                {
+                    Console.Write("Введите электронную почту: ");
+                    email = Console.ReadLine();
+                    if (string.IsNullOrWhiteSpace(email))
+                    {
+                        Console.WriteLine("Электронная почта не может быть пустой. Пожалуйста, введите корректный адрес.");
+                    }
+                }
+                while (string.IsNullOrWhiteSpace(email));
 
-                Console.Write("Введите пароль: ");
-                string password = Console.ReadLine();
+                string password;
+                do
+                {
+                    Console.Write("Введите пароль: ");
+                    password = Console.ReadLine();
+                    if (string.IsNullOrWhiteSpace(password))
+                    {
+                        Console.WriteLine("Пароль не может быть пустым. Пожалуйста, введите пароль.");
+                    }
+                }
+                while (string.IsNullOrWhiteSpace(password));
 
                 try
                 {
