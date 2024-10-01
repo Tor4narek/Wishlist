@@ -2,4 +2,4 @@
 
 namespace Models;
 
-public record Present(string Id, string Name, string Description, string WishlistId, bool IsReserved, string ReserverId);
+public record Present(Guid Id, string Name, string Description, string WishlistId, bool IsReserved, string ReserverId);

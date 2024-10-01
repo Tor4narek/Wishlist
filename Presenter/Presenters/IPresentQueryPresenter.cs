@@ -8,7 +8,7 @@ namespace Presenter;
 
 public interface IPresentQueryPresenter
 {
-    Task LoadWishlistPresentsAsync(string wishlistId);
+    Task<IReadOnlyCollection<Present>> LoadWishlistPresentsAsync(string wishlistId);
     Task SearchPresentsByKeywordAsync(string keyword);
     Task LoadReservedPresentsAsync(string userId);
 }

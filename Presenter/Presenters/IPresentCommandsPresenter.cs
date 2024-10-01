@@ -8,7 +8,8 @@ namespace Presenter;
 
 public interface IPresentCommandsPresenter
 {
-    Task AddNewPresentAsync(Present present, CancellationToken token);
+    Task AddNewPresentAsync(string Name, string Description, string ReserverId, string WishlistId,
+        CancellationToken token);
     Task DeletePresentAsync(Guid presentId);
     Task ReservePresentAsync(string presentId, string reserverId);
 }

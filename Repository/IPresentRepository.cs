@@ -7,9 +7,9 @@ namespace Repository;
 public interface IPresentRepository
 {
     Task<IReadOnlyCollection<Present>>  GetPresentsAsync(string wishlistId);
-    Task AddPresentAsync(Present present);
-    Task DeletePresentAsync(string presentId);
+    Task AddPresentAsync(Present present, CancellationToken token);
+    Task DeletePresentAsync(Guid presentId);
     Task<IReadOnlyCollection<Present>> SearchPresentsByKeywordAsync(string keyword);
-    Task ReservePresentAsync(string presentId, string reserverId);
+    Task ReservePresentAsync(Guid presentId, string reserverId);
     Task<IReadOnlyCollection<Present>> GetReservedPresentsAsync(string userId);
 }

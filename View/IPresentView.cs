@@ -10,7 +10,8 @@ using Models;
 namespace View;
 public interface IPresentView
 {
-    void ShowUserPresents(List<Present> presents);
+    Task ShowUserPresents(string userId);
+    Task AddPresent(string userId, string wishlistId); 
     void ShowSearchedPresents(List<Present> presents);
     void ShowReservedPresents(List<Present> reservedPresents);
     void UpdatePresentList();

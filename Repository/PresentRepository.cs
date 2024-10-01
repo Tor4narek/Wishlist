@@ -13,20 +13,22 @@ public class PresentRepository : IPresentRepository
     public async Task<IReadOnlyCollection<Present>> GetPresentsAsync(string wishlistId)
     {
         var presents = await _repository.GetAllAsync();
-        return presents.Where(p=> p.WishlistId == wishlistId).ToList();
+        var filteredPresents = presents.Where(p => p.WishlistId == wishlistId).ToList();
+        return filteredPresents;
     }
 
-    public async Task AddPresentAsync(Present present)
+    public async Task AddPresentAsync(Present present, CancellationToken token)
     {
         if (present == null)
         {
             throw new ArgumentNullException(nameof(present));
         }
+        token.ThrowIfCancellationRequested();
         await _repository.AddAsync(present);
         
     }
 
-    public async Task DeletePresentAsync(string presentId)
+    public async Task DeletePresentAsync(Guid presentId)
     {
        await _repository.DeleteAsync(p => p.Id == presentId);
     }
@@ -46,7 +48,7 @@ public class PresentRepository : IPresentRepository
     }
 
 
-    public async Task ReservePresentAsync(string presentId, string reserverId)
+    public async Task ReservePresentAsync(Guid presentId, string reserverId)
     {
         // Загрузка подарков
         List<Present> presents = await _repository.GetAllAsync();
