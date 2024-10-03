@@ -1,34 +1,60 @@
-﻿namespace View
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
+public class MenuView
 {
-    public class MenuView
+    private readonly Dictionary<int, Func<Task>> _menuActions;
+    private readonly Dictionary<int, string> _menuLabels;
+
+    // Конструктор принимает словарь с действиями и метками для пунктов меню
+    public MenuView(Dictionary<int, Func<Task>> menuActions, Dictionary<int, string> menuLabels)
     {
-        private readonly Dictionary<string, Action> _menuActions;
-        private readonly string[] _menuItems;
-
-        public MenuView(Dictionary<string, Action> menuActions)
+        _menuActions = menuActions ?? throw new ArgumentNullException(nameof(menuActions));
+        _menuLabels = menuLabels ?? throw new ArgumentNullException(nameof(menuLabels));
+        
+        // Проверяем, что у всех действий есть соответствующие метки
+        if (_menuActions.Count != _menuLabels.Count)
         {
-            _menuActions = menuActions;
-            _menuItems = menuActions.Keys.ToArray();
+            throw new ArgumentException("Количество действий должно совпадать с количеством меток меню.");
         }
+    }
 
-        public void ShowMenu()
+    // Метод для отображения меню
+    public void ShowMenu()
+    {
+        Console.WriteLine("Меню:");
+        foreach (var label in _menuLabels)
         {
-           
-            for (int i = 0; i < _menuItems.Length; i++)
-            {
-                Console.WriteLine($"{i + 1}. {_menuItems[i]}");
-            }
-
-            var choice = Console.ReadLine();
-            HandleChoice(choice);
+            Console.WriteLine($"{label.Key}. {label.Value}");
         }
+    }
 
-        private void HandleChoice(string choice)
+    // Метод для получения ввода пользователя
+    public int GetUserInput()
+    {
+        int choice;
+        do
         {
-            if (int.TryParse(choice, out int index) && index > 0 && index <= _menuItems.Length)
+            Console.Write("Выберите действие: ");
+        }
+        while (!int.TryParse(Console.ReadLine(), out choice));
+
+        return choice;
+    }
+
+    // Метод для выполнения действия
+    public async Task ExecuteMenuChoice()
+    {
+        while (true)
+        {
+            ShowMenu();
+            int choice = GetUserInput();
+
+            if (_menuActions.ContainsKey(choice))
             {
-                var selectedAction = _menuItems[index - 1];
-                _menuActions[selectedAction]?.Invoke();
+                await _menuActions[choice]();  // Выполняем выбранное действие
+                break;  // Если действие успешно выполнено, выходим из цикла
             }
             else
             {

@@ -23,24 +23,22 @@ namespace View
                 await AuthUser();
                 if (_isProgramRunning && _isLoggedIn)
                 {
-                    // Попытка получить аутентифицированного пользователя
                     var authenticatedUser = await _userPresenter.GetAuthenticatedUserAsync();
 
-                    // Если пользователь не аутентифицирован, предлагаем повторить авторизацию
                     if (authenticatedUser == null)
                     {
                         Console.WriteLine("Нет аутентифицированного пользователя. Попробуйте снова.");
-                        continue; // Возвращаемся к AuthUser для новой попытки
+                        continue;
                     }
                     else
                     {
-                        // Если пользователь аутентифицирован, продолжаем работу
                         await ShowUser(authenticatedUser);
                     }
                 }
             }
         }
 
+        // Меню для пользователя
         public async Task ShowUser(User user)
         {
             try
@@ -48,30 +46,30 @@ namespace View
                 var username = user.Name;
                 _isLoggedIn = true;
 
-                // Определяем действия для меню
+                // Определяем действия для меню пользователя
+                var menuActions = new Dictionary<int, Func<Task>>()
+                {
+                    { 1, async () => await _wishlistView.StartWishlist(user) },  // Асинхронный вызов метода для работы с вишлистами
+                    { 2, async () => await SearchUser() },                       // Асинхронный вызов поиска пользователя
+                    { 3, async () =>  SearchGift() },                       // Асинхронный вызов поиска подарка
+                    { 4, async () => ExitProgram() }                             // Выход из программы
+                };
+
+                var menuLabels = new Dictionary<int, string>()
+                {
+                    { 1, "Посмотреть вишлисты" },
+                    { 2, "Найти пользователя" },
+                    { 3, "Найти подарок" },
+                    { 4, "Выход" }
+                };
+
+                // Используем универсальный класс MenuView
+                var menuView = new MenuView(menuActions, menuLabels);
+
                 while (_isLoggedIn)
                 {
-                    Console.WriteLine($"Привет! {username}");
-            
-                    var menuActions = new Dictionary<int, Func<Task>>()
-                    {
-                        { 1, async () => await _wishlistView.StartWishlist(user) },  // Асинхронный вызов метода для работы с вишлистами
-                        { 2, async () => await SearchUser() },                       // Асинхронный вызов поиска пользователя
-                        { 3, async () =>  SearchGift() },                       // Асинхронный вызов поиска подарка
-                        { 4, async () => ExitProgram() }                             // Выход из программы
-                    };
-
-                    ShowMenu(menuActions);
-                    int choice = GetUserInput();
-
-                    if (menuActions.ContainsKey(choice))
-                    {
-                        await menuActions[choice](); // Выполняем выбранное действие
-                    }
-                    else
-                    {
-                        Console.WriteLine("Неверный выбор. Попробуйте снова.");
-                    }
+                    Console.WriteLine($"Привет, {username}!");
+                    await menuView.ExecuteMenuChoice();  // Показываем меню и выполняем действия
                 }
             }
             catch (Exception e)
@@ -79,27 +77,6 @@ namespace View
                 Console.WriteLine($"Произошла ошибка: {e.Message}");
             }
         }
-
-        private void ShowMenu(Dictionary<int, Func<Task>> menuActions)
-        {
-            Console.WriteLine("1. Посмотреть вишлисты");
-            Console.WriteLine("2. Найти пользователя");
-            Console.WriteLine("3. Найти подарок");
-            Console.WriteLine("4. Выход");
-        }
-
-        private int GetUserInput()
-        {
-            int choice;
-            do
-            {
-                Console.Write("Выберите действие: ");
-            }
-            while (!int.TryParse(Console.ReadLine(), out choice));
-    
-            return choice;
-        }
-
 
         // Метод выхода
         private void ExitProgram()
@@ -109,7 +86,7 @@ namespace View
             _isLoggedIn = false;
         }
 
-        // Заглушка для метода поиска пользователя
+        // Поиск пользователя
         private async Task SearchUser()
         {
             Console.WriteLine("Поиск пользователя");
@@ -128,58 +105,81 @@ namespace View
             // Выполняем поиск пользователя
             var user = await _userPresenter.GetUserByEmailAsync(keyword);
 
-            // Проверяем, есть ли результаты
             if (user != null)
             {
                 Console.WriteLine("Результаты поиска:");
                 Console.WriteLine($"Имя: {user.Name}, Email: {user.Email}");
+
+                var searchMenuActions = new Dictionary<int, Func<Task>>()
+                {
+                    { 1, async () => await ShowUserWishes(user) },   // Показать вишлисты найденного пользователя
+                    { 2, () => Task.CompletedTask }                  // Возврат в главное меню
+                };
+
+                var searchMenuLabels = new Dictionary<int, string>()
+                {
+                    { 1, "Посмотреть вишлисты пользователя" },
+                    { 2, "Назад в главное меню" }
+                };
+
+                var menuView = new MenuView(searchMenuActions, searchMenuLabels);
+                await menuView.ExecuteMenuChoice();  // Показываем меню действий после поиска пользователя
             }
             else
             {
                 Console.WriteLine("Пользователи не найдены.");
             }
-
-            Console.WriteLine("Нажмите любую клавишу, чтобы вернуться в главное меню...");
-            Console.ReadKey(); // Ожидаем нажатие клавиши, чтобы не перескакивать сразу на следующее меню
         }
 
+        private async Task ShowUserWishes(User user)
+        {
+            try
+            {
+                await _wishlistView.ShowUserWishlistsAsync(user);
 
-        // Заглушка для метода поиска подарка
+                Console.WriteLine("Нажмите любую клавишу, чтобы вернуться...");
+                Console.ReadKey();  // Ждем нажатие клавиши
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ошибка при показе вишлистов: {ex.Message}");
+            }
+        }
+
+        // Поиск подарка
         private void SearchGift()
         {
             Console.WriteLine("Логика поиска подарка...");
             // Добавьте здесь свою логику поиска
         }
 
+        // Меню аутентификации
         public async Task AuthUser()
         {
-            // Определяем действия для меню
-            var menuActions = new Dictionary<string, Action>
+            var menuActions = new Dictionary<int, Func<Task>>()
             {
-                { "Зарегистрироваться", () => RegisterUser().Wait() },  // Регистрация нового пользователя
-                { "Войти", () => 
-                    {
-                        LoginUser().Wait();  // Аутентификация пользователя
-                        var authenticatedUser = _userPresenter.GetAuthenticatedUserAsync().Result;
-                        if (authenticatedUser != null)
-                        {
-                            ShowUser(authenticatedUser).Wait();  // Если аутентификация успешна, показываем меню пользователя
-                        }
-                    } 
-                },     
-                { "Выход", () => System.Environment.Exit(0) }                        // Выход из программы
+                { 1, async () => await RegisterUser() },  // Регистрация
+                { 2, async () => await LoginUser() },     // Вход
+                { 3, () => Task.Run(() => System.Environment.Exit(0)) }  // Выход
             };
 
-            var menuView = new MenuView(menuActions);
+            var menuLabels = new Dictionary<int, string>()
+            {
+                { 1, "Зарегистрироваться" },
+                { 2, "Войти" },
+                { 3, "Выход" }
+            };
 
-            // Отображаем меню до тех пор, пока программа работает
-            while (_isProgramRunning)
+            var menuView = new MenuView(menuActions, menuLabels);
+
+            while (!_isLoggedIn)
             {
                 Console.WriteLine("Выберите действие:");
-                menuView.ShowMenu();
+                await menuView.ExecuteMenuChoice();  // Показываем меню аутентификации
             }
         }
 
+        // Регистрация нового пользователя
         private async Task RegisterUser()
         {
             while (true)
@@ -235,6 +235,7 @@ namespace View
             }
         }
 
+        // Вход пользователя
         private async Task LoginUser()
         {
             while (true)
@@ -269,7 +270,8 @@ namespace View
                 {
                     await _userPresenter.AuthenticateUserAsync(email, password);
                     Console.WriteLine("Пользователь успешно аутентифицирован.");
-                    break; // Выход из цикла после успешной аутентификации
+                    _isLoggedIn = true;
+                    break;
                 }
                 catch (Exception ex)
                 {

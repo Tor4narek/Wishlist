@@ -83,7 +83,7 @@ public class WishlistView : IWishlistView
             }
 
             // Выводим все вишлисты пользователя
-            Console.WriteLine("Ваши вишлисты:\n");
+            Console.WriteLine("Вишлисты:\n");
             int index = 1;
             foreach (var wishlist in wishlists)
             {
