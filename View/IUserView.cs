@@ -8,7 +8,7 @@ namespace View;
 
 public interface IUserView
 {
-    Task ShowUser();
+    Task ShowUser(User user);
     Task Start();
     void UpdateUserList();
     

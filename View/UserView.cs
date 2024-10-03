@@ -14,13 +14,14 @@ namespace View
         private UserPresenter _userPresenter = new UserPresenter();
         private WishlistView _wishlistView = new WishlistView();
         private bool _isProgramRunning = true;
+        private bool _isLoggedIn = false;
 
         public async Task Start()
         {
             while (_isProgramRunning)
             {
                 await AuthUser();
-                if (_isProgramRunning)
+                if (_isProgramRunning && _isLoggedIn)
                 {
                     // Попытка получить аутентифицированного пользователя
                     var authenticatedUser = await _userPresenter.GetAuthenticatedUserAsync();
@@ -34,56 +35,34 @@ namespace View
                     else
                     {
                         // Если пользователь аутентифицирован, продолжаем работу
-                        await ShowUser();
+                        await ShowUser(authenticatedUser);
                     }
                 }
             }
         }
 
-        public async Task ShowUser()
+        public async Task ShowUser(User user)
         {
             try
             {
-                var username = await _userPresenter.GetAuthenticatedUserAsync();
+                var username = user.Name;
+                _isLoggedIn = true;
 
-                if (username == null)
+                // Определяем действия для меню
+                var menuActions = new Dictionary<string, Action>
                 {
-                    Console.WriteLine("Пользователь не аутентифицирован. Возвращение в главное меню.");
-                    return;
-                }
+                    { "Посмотреть вишлисты", () => _wishlistView.StartWishlist(user).Wait() },
+                    { "Найти пользователя", () => SearchUser() },
+                    { "Найти подарок", () => SearchGift() },
+                    { "Выход", () => ExitProgram() }
+                };
 
-                while (true)
+                var menuView = new MenuView(menuActions);
+
+                while (_isLoggedIn)
                 {
-                    Console.WriteLine($"Привет! {username.Name}");
-                    Console.WriteLine("1. Посмотреть вишлисты");
-                    Console.WriteLine("2. Найти пользователя");
-                    Console.WriteLine("3. Найти подарок");
-                    Console.WriteLine("4. Выход");
-
-                    var choice = Console.ReadLine();
-
-                    switch (choice)
-                    {
-                        case "1":
-                            await _wishlistView.StartWishlist(username);
-                            break;
-
-                        case "2":
-                            // Логика поиска пользователя
-                            break;
-
-                        case "3":
-                            // Логика поиска подарка
-                            break;
-
-                        case "4":
-                            Console.WriteLine("Выход из программы...");
-                            await _userPresenter.LogoutAsync();  // Очищаем данные пользователя
-                            return;  // Выход из метода ShowUser, программа вернется в цикл Start
-                        default:
-                            Console.WriteLine("Неверный выбор. Пожалуйста, выберите 1, 2 или 3.");
-                            break;
-                    }
+                    Console.WriteLine($"Привет! {username}");
+                    menuView.ShowMenu();
                 }
             }
             catch (Exception e)
@@ -92,43 +71,54 @@ namespace View
             }
         }
 
+        // Метод выхода
+        private void ExitProgram()
+        {
+            Console.WriteLine("Выход из программы...");
+            _userPresenter.LogoutAsync().Wait();  // Очищаем данные пользователя
+            _isLoggedIn = false;
+        }
+
+        // Заглушка для метода поиска пользователя
+        private void SearchUser()
+        {
+            Console.WriteLine("Логика поиска пользователя...");
+            // Добавьте здесь свою логику поиска
+        }
+
+        // Заглушка для метода поиска подарка
+        private void SearchGift()
+        {
+            Console.WriteLine("Логика поиска подарка...");
+            // Добавьте здесь свою логику поиска
+        }
+
         public async Task AuthUser()
         {
-            while (true)
+            // Определяем действия для меню
+            var menuActions = new Dictionary<string, Action>
             {
-                try
-                {
-                    Console.WriteLine("Выберите действие:");
-                    Console.WriteLine("1. Зарегистрироваться");
-                    Console.WriteLine("2. Войти");
-                    Console.WriteLine("3. Выход");
-
-                    var choice = Console.ReadLine();
-
-                    switch (choice)
+                { "Зарегистрироваться", () => RegisterUser().Wait() },  // Регистрация нового пользователя
+                { "Войти", () => 
                     {
-                        case "1":
-                            await RegisterUser();
-                            break;
+                        LoginUser().Wait();  // Аутентификация пользователя
+                        var authenticatedUser = _userPresenter.GetAuthenticatedUserAsync().Result;
+                        if (authenticatedUser != null)
+                        {
+                            ShowUser(authenticatedUser).Wait();  // Если аутентификация успешна, показываем меню пользователя
+                        }
+                    } 
+                },     
+                { "Выход", () => System.Environment.Exit(0) }                        // Выход из программы
+            };
 
-                        case "2":
-                            await LoginUser();
-                            return;
+            var menuView = new MenuView(menuActions);
 
-                        case "3":
-                            Console.WriteLine("Выход из программы...");
-                            _isProgramRunning = false;  // Завершение программы
-                            return;
-
-                        default:
-                            Console.WriteLine("Неверный выбор. Пожалуйста, выберите 1, 2 или 3.");
-                            break;
-                    }
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine($"Произошла ошибка: {e.Message}");
-                }
+            // Отображаем меню до тех пор, пока программа работает
+            while (_isProgramRunning)
+            {
+                Console.WriteLine("Выберите действие:");
+                menuView.ShowMenu();
             }
         }
 

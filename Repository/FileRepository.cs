@@ -25,6 +25,7 @@ public class FileRepository<T>
         }
 
         var lines = await File.ReadAllLinesAsync(_filePath);
+        
         var tableData = lines.SkipWhile(line => line != _tableName + ":").Skip(1).TakeWhile(line => !string.IsNullOrWhiteSpace(line)).ToList();
 
         var options = new JsonSerializerOptions
