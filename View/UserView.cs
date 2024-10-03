@@ -13,6 +13,7 @@ namespace View
     {
         private UserPresenter _userPresenter = new UserPresenter();
         private WishlistView _wishlistView = new WishlistView();
+        private PresentView _presentView = new PresentView();
         private bool _isProgramRunning = true;
         private bool _isLoggedIn = false;
 
@@ -136,15 +137,14 @@ namespace View
             try
             {
                 await _wishlistView.ShowUserWishlistsAsync(user);
-
-                Console.WriteLine("Нажмите любую клавишу, чтобы вернуться...");
-                Console.ReadKey();  // Ждем нажатие клавиши
+                await _wishlistView.UpdateWishlist(user, false);
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Ошибка при показе вишлистов: {ex.Message}");
             }
         }
+        
 
         // Поиск подарка
         private void SearchGift()

@@ -44,7 +44,7 @@ public class PresentCommandsPresenter : IPresentCommandsPresenter
         throw new NotImplementedException();
     }
 
-    public Task ReservePresentAsync(string presentId, string reserverId)
+    public Task ReservePresentAsync(Guid presentId, string reserverId)
     {
         throw new NotImplementedException();
     }

@@ -14,5 +14,5 @@ public interface IPresentView
     Task AddPresent(string userId, string wishlistId); 
     void ShowSearchedPresents(List<Present> presents);
     void ShowReservedPresents(List<Present> reservedPresents);
-    void UpdatePresentList();
+    Task UpdatePresentList();
 }

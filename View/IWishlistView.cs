@@ -13,5 +13,5 @@ public interface IWishlistView
 {
     Task ShowUserWishlistsAsync(User user);
     Task AddWishlistAsync(string owner_id);
-    Task UpdateWishlist(User user);
+    Task UpdateWishlist(User user, bool update);
 }

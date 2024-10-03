@@ -2,9 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Presenter;
+
 namespace View;
 
 public class WishlistView : IWishlistView
@@ -22,40 +22,27 @@ public class WishlistView : IWishlistView
             Console.Clear();  // Очищаем экран для обновления информации
             Console.WriteLine($"\nПривет! {user.Name}\n");
 
-            // Console.WriteLine("Ваши текущие вишлисты:\n");
-
             // Показываем существующие вишлисты пользователя
             await ShowUserWishlistsAsync(user);
 
-            Console.WriteLine("\nЧто вы хотите сделать?");
-            Console.WriteLine("1. Создать новый вишлист");
-            Console.WriteLine("2. Изменить вишлист");
-            Console.WriteLine("3. Назад");
-
-            Console.Write("Введите ваш выбор (1, 2 или 3): ");
-            string choice = Console.ReadLine();
-
-            switch (choice)
+            // Определяем действия меню
+            var menuActions = new Dictionary<int, Func<Task>>()
             {
-                case "1":
-                    // Создаем новый вишлист
-                    await AddWishlistAsync(userId);
-                    break;
+                { 1, async () => await AddWishlistAsync(userId) },  // Создание нового вишлиста
+                { 2, async () => await UpdateWishlist(user, true) },      // Изменение существующего вишлиста
+                { 3, () => Task.FromResult(continueRunning = false) } // Возврат назад
+            };
 
-                case "2":
-                    // Функция обновления вишлиста (можно реализовать отдельно)
-                   await UpdateWishlist(user);
-                    break;
+            var menuLabels = new Dictionary<int, string>()
+            {
+                { 1, "Создать новый вишлист" },
+                { 2, "Изменить вишлист" },
+                { 3, "Назад" }
+            };
 
-                case "3":
-                    // Завершаем работу программы
-                    continueRunning = false;
-                    break;
-
-                default:
-                    Console.WriteLine("Неверный выбор. Пожалуйста, выберите 1, 2 или 3.");
-                    break;
-            }
+            // Используем универсальное меню
+            var menuView = new MenuView(menuActions, menuLabels);
+            await menuView.ExecuteMenuChoice();
 
             // Небольшая задержка перед обновлением интерфейса для лучшего UX
             if (continueRunning)
@@ -65,7 +52,7 @@ public class WishlistView : IWishlistView
             }
         }
 
-        Console.WriteLine("Программа завершена.");
+        Console.WriteLine("Загрузка...");
     }
 
     public async Task ShowUserWishlistsAsync(User user)
@@ -96,7 +83,6 @@ public class WishlistView : IWishlistView
             Console.WriteLine($"Произошла ошибка при загрузке вишлистов: {e.Message}");
         }
     }
-
 
     public async Task AddWishlistAsync(string w_ownerId)
     {
@@ -139,7 +125,7 @@ public class WishlistView : IWishlistView
         }
     }
 
-    public async Task UpdateWishlist(User user)
+    public async Task UpdateWishlist(User user, bool update)
     {
         try
         {
@@ -150,7 +136,7 @@ public class WishlistView : IWishlistView
             if (wishlists == null || wishlists.Count == 0)
             {
                 Console.WriteLine("У вас нет доступных вишлистов для изменения.");
-                return; // Если вишлистов нет, выходим
+                return;
             }
 
             // Выводим список вишлистов
@@ -173,18 +159,15 @@ public class WishlistView : IWishlistView
 
             // Получаем выбранный вишлист по индексу
             var selectedWishlist = wishlists.ElementAt(selectedWishlistIndex - 1);
-
-            // Вызываем функцию для работы с подарками в выбранном вишлисте
-            await _presentView.StartPresents(user, selectedWishlist);
+           
+                // Вызываем функцию для работы с подарками в выбранном вишлисте
+                await _presentView.StartPresents(user, selectedWishlist, update);
+           
+            
         }
         catch (Exception e)
         {
             Console.WriteLine($"Произошла ошибка при обновлении вишлиста: {e.Message}");
         }
     }
-
-
-
-
-
 }

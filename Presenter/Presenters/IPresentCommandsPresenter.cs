@@ -11,5 +11,5 @@ public interface IPresentCommandsPresenter
     Task AddNewPresentAsync(string Name, string Description, string ReserverId, string WishlistId,
         CancellationToken token);
     Task DeletePresentAsync(Guid presentId);
-    Task ReservePresentAsync(string presentId, string reserverId);
+    Task ReservePresentAsync(Guid presentId, string reserverId);
 }
