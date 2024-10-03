@@ -11,4 +11,5 @@ public interface IUserPresenter
     Task DeleteUserAsync(string userId);
     Task<User> AuthenticateUserAsync(string email, string password);
     Task<User> GetAuthenticatedUserAsync();
+    Task<IReadOnlyCollection<User>> SearchUsersByKeywordAsync(string keyword);
 }

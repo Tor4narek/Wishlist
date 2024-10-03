@@ -19,11 +19,25 @@ public class UserRepository : IUserRepository
     }
 
     // Новый метод для поиска пользователя по email
+    public async Task<IReadOnlyCollection<User>> SearchUsersByKeywordAsync(string keyword)
+    {
+        // Загружаем всех пользователей
+        var users = await _repository.GetAllAsync();
+
+        // Фильтруем пользователей по наличию ключевого слова в имени или электронной почте (без учета регистра)
+        var filteredUsers = users.Where(u => 
+                u.Name.Contains(keyword, StringComparison.OrdinalIgnoreCase) ||
+                u.Email.Contains(keyword, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+        return filteredUsers;
+    }
     public async Task<User> GetUserByEmailAsync(string email)
     {
         var users = await _repository.GetAllAsync();
         return users.FirstOrDefault(u => u.Email == email);;
     }
+
 
     public async Task AddUserAsync(User user)
     {

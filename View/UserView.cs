@@ -49,20 +49,29 @@ namespace View
                 _isLoggedIn = true;
 
                 // Определяем действия для меню
-                var menuActions = new Dictionary<string, Action>
-                {
-                    { "Посмотреть вишлисты", () => _wishlistView.StartWishlist(user).Wait() },
-                    { "Найти пользователя", () => SearchUser() },
-                    { "Найти подарок", () => SearchGift() },
-                    { "Выход", () => ExitProgram() }
-                };
-
-                var menuView = new MenuView(menuActions);
-
                 while (_isLoggedIn)
                 {
                     Console.WriteLine($"Привет! {username}");
-                    menuView.ShowMenu();
+            
+                    var menuActions = new Dictionary<int, Func<Task>>()
+                    {
+                        { 1, async () => await _wishlistView.StartWishlist(user) },  // Асинхронный вызов метода для работы с вишлистами
+                        { 2, async () => await SearchUser() },                       // Асинхронный вызов поиска пользователя
+                        { 3, async () =>  SearchGift() },                       // Асинхронный вызов поиска подарка
+                        { 4, async () => ExitProgram() }                             // Выход из программы
+                    };
+
+                    ShowMenu(menuActions);
+                    int choice = GetUserInput();
+
+                    if (menuActions.ContainsKey(choice))
+                    {
+                        await menuActions[choice](); // Выполняем выбранное действие
+                    }
+                    else
+                    {
+                        Console.WriteLine("Неверный выбор. Попробуйте снова.");
+                    }
                 }
             }
             catch (Exception e)
@@ -70,6 +79,27 @@ namespace View
                 Console.WriteLine($"Произошла ошибка: {e.Message}");
             }
         }
+
+        private void ShowMenu(Dictionary<int, Func<Task>> menuActions)
+        {
+            Console.WriteLine("1. Посмотреть вишлисты");
+            Console.WriteLine("2. Найти пользователя");
+            Console.WriteLine("3. Найти подарок");
+            Console.WriteLine("4. Выход");
+        }
+
+        private int GetUserInput()
+        {
+            int choice;
+            do
+            {
+                Console.Write("Выберите действие: ");
+            }
+            while (!int.TryParse(Console.ReadLine(), out choice));
+    
+            return choice;
+        }
+
 
         // Метод выхода
         private void ExitProgram()
@@ -80,11 +110,39 @@ namespace View
         }
 
         // Заглушка для метода поиска пользователя
-        private void SearchUser()
+        private async Task SearchUser()
         {
-            Console.WriteLine("Логика поиска пользователя...");
-            // Добавьте здесь свою логику поиска
+            Console.WriteLine("Поиск пользователя");
+            string keyword;
+            do
+            {
+                Console.Write("Введите email или имя для поиска: ");
+                keyword = Console.ReadLine();
+                if (string.IsNullOrWhiteSpace(keyword))
+                {
+                    Console.WriteLine("Поле не может быть пустым. Пожалуйста, введите корректный Email или имя.");
+                }
+            }
+            while (string.IsNullOrWhiteSpace(keyword));
+
+            // Выполняем поиск пользователя
+            var user = await _userPresenter.GetUserByEmailAsync(keyword);
+
+            // Проверяем, есть ли результаты
+            if (user != null)
+            {
+                Console.WriteLine("Результаты поиска:");
+                Console.WriteLine($"Имя: {user.Name}, Email: {user.Email}");
+            }
+            else
+            {
+                Console.WriteLine("Пользователи не найдены.");
+            }
+
+            Console.WriteLine("Нажмите любую клавишу, чтобы вернуться в главное меню...");
+            Console.ReadKey(); // Ожидаем нажатие клавиши, чтобы не перескакивать сразу на следующее меню
         }
+
 
         // Заглушка для метода поиска подарка
         private void SearchGift()

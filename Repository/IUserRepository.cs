@@ -6,8 +6,9 @@ using Models;
 public interface IUserRepository
 {
     Task<User> GetUserAsync(string userId);
-    Task<User> GetUserByEmailAsync(string email); 
+    Task<IReadOnlyCollection<User>> SearchUsersByKeywordAsync(string keyword);
     Task AddUserAsync(User user);
+    Task<User> GetUserByEmailAsync(string email);
     Task DeleteUserAsync(string userId);
     Task UpdateUserAsync(User user);
 }

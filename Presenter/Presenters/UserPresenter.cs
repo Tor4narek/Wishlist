@@ -95,6 +95,29 @@ namespace Presenter
             }
         }
 
+        public async Task<IReadOnlyCollection<User>> SearchUsersByKeywordAsync(string keyword)
+        {
+            // Проводим проверку входного параметра
+            if (string.IsNullOrWhiteSpace(keyword))
+            {
+                return null; // Возвращаем пустой список, если ключевое слово пустое
+            }
+
+            // Получаем пользователей по ключевому слову
+            var users = await _userRepository.SearchUsersByKeywordAsync(keyword);
+            return users;
+        }
+
+        public async Task<User> GetUserByEmailAsync(string email)
+        {
+            if (string.IsNullOrWhiteSpace(email))
+            {
+                return null; // Возвращаем пустой список, если ключевое слово пустое
+            }
+            var user = await _userRepository.GetUserByEmailAsync(email);
+            return user;
+        }
+
         public async Task LogoutAsync()
         {
             await _authService.LogoutAsync();
