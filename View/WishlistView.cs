@@ -57,10 +57,11 @@ public class WishlistView : IWishlistView
 
     public async Task ShowUserWishlistsAsync(User user)
     {
+        CancellationToken token = new CancellationToken();
         try
         {
             // Загружаем вишлисты пользователя
-            IReadOnlyCollection<Wishlist> wishlists = await _wishlistPresenter.LoadUserWishlistsAsync(user.Id);
+            IReadOnlyCollection<Wishlist> wishlists = await _wishlistPresenter.LoadUserWishlistsAsync(user.Id,token);
 
             // Проверяем наличие вишлистов
             if (wishlists == null || wishlists.Count == 0)
@@ -86,6 +87,7 @@ public class WishlistView : IWishlistView
 
     public async Task AddWishlistAsync(string w_ownerId)
     {
+        CancellationToken token = new CancellationToken();
         try
         {
             Console.WriteLine("Создание вишлиста");
@@ -116,7 +118,7 @@ public class WishlistView : IWishlistView
             }
             while (string.IsNullOrWhiteSpace(w_description));
 
-            await _wishlistPresenter.AddNewWishlistAsync(w_name, w_description, w_ownerId, "0");
+            await _wishlistPresenter.AddNewWishlistAsync(w_name, w_description, w_ownerId, "0",token);
             Console.WriteLine("Вишлист успешно создан.");
         }
         catch (Exception e)
@@ -127,10 +129,11 @@ public class WishlistView : IWishlistView
 
     public async Task UpdateWishlist(User user, bool update)
     {
+        CancellationToken token = new CancellationToken();
         try
         {
             // Загружаем вишлисты пользователя
-            IReadOnlyCollection<Wishlist> wishlists = await _wishlistPresenter.LoadUserWishlistsAsync(user.Id);
+            IReadOnlyCollection<Wishlist> wishlists = await _wishlistPresenter.LoadUserWishlistsAsync(user.Id,token);
 
             // Проверяем наличие вишлистов
             if (wishlists == null || wishlists.Count == 0)

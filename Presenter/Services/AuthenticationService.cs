@@ -4,6 +4,7 @@ using System;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Presenter.Services
@@ -13,18 +14,17 @@ namespace Presenter.Services
         private UserRepository _userRepository = new UserRepository();
         private User _authenticatedUser = null;
 
-        public async Task RegisterUserAsync(string name, string email, string password)
+        public async Task RegisterUserAsync(string name, string email, string password, CancellationToken token)
         {
             // Валидация данных
             ValidateUserData(name, email, password);
 
             // Проверка, существует ли пользователь с таким email
-            var userEmail = await _userRepository.GetUserByEmailAsync(email);
+            var userEmail = await _userRepository.GetUserByEmailAsync(email,token);
             if (userEmail == null)
             {
                 string id = Guid.NewGuid().ToString();
-                await _userRepository.AddUserAsync(new User(id, name, email, HashPassword(password)));
-   
+                await _userRepository.AddUserAsync(new User(id, name, email, HashPassword(password)), token);
             }
             else
             {
@@ -32,18 +32,17 @@ namespace Presenter.Services
             }
         }
 
-        public async Task AuthenticateUserAsync(string email, string password)
+        public async Task AuthenticateUserAsync(string email, string password, CancellationToken token)
         {
             // Валидация email и пароля
             ValidateEmailAndPassword(email, password);
 
-            var user = await _userRepository.GetUserByEmailAsync(email);
+            var user = await _userRepository.GetUserByEmailAsync(email,token);
             if (user != null)
             {
                 if (user.PasswordHash == HashPassword(password))
                 {
                     _authenticatedUser = user;
-     
                 }
                 else
                 {
@@ -67,10 +66,10 @@ namespace Presenter.Services
                 throw new Exception("No user is currently authenticated");
             }
         }
+
         public async Task LogoutAsync()
         {
             _authenticatedUser = null;
-            
         }
 
         private string HashPassword(string password)

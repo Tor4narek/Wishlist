@@ -85,9 +85,10 @@ namespace View
 
         public async Task ShowUserPresents(string wishlistId)
         {
+            CancellationToken token = new CancellationToken();
             try
             {
-                IReadOnlyCollection<Present> presents = await _presentQueryPresenter.LoadWishlistPresentsAsync(wishlistId);
+                IReadOnlyCollection<Present> presents = await _presentQueryPresenter.LoadWishlistPresentsAsync(wishlistId,token);
 
                 if (presents == null || presents.Count == 0)
                 {
@@ -167,10 +168,12 @@ namespace View
 
         private async Task ReservePresent(string wishlistId, User user)
         {
+            CancellationToken token = new CancellationToken();
             try
             {
+               
                 // Загружаем вишлисты пользователя
-                IReadOnlyCollection<Present> presents = await _presentQueryPresenter.LoadWishlistPresentsAsync(wishlistId);
+                IReadOnlyCollection<Present> presents = await _presentQueryPresenter.LoadWishlistPresentsAsync(wishlistId, token);
 
                 // Проверяем наличие вишлистов
                 if (presents == null || presents.Count == 0)
@@ -199,8 +202,8 @@ namespace View
 
                 // Получаем выбранный вишлист по индексу
                 var selectedPresent = presents.ElementAt(selectedPresentIndex - 1);
-
-                await _presentCommandsPresenter.ReservePresentAsync(selectedPresent.Id,user.Id);
+               
+                                    await _presentCommandsPresenter.ReservePresentAsync(selectedPresent.Id,user.Id,token);
                 Console.WriteLine("Подарок забронирован");
             }
             catch (Exception e)

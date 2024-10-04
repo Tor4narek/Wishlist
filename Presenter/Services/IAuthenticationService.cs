@@ -1,12 +1,14 @@
 ﻿using Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
-namespace Presenter.Services;
 
-public interface IAuthenticationService
+namespace Presenter.Services
 {
-    Task RegisterUserAsync(string name, string email, string password);
-    Task AuthenticateUserAsync(string email, string password);
+    public interface IAuthenticationService
+    {
+        Task RegisterUserAsync(string name, string email, string password, CancellationToken token);
+        Task AuthenticateUserAsync(string email, string password, CancellationToken token);
+        Task<User> GetAuthenticatedUserAsync();
+        Task LogoutAsync();
+    }
 }

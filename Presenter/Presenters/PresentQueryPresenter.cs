@@ -1,33 +1,58 @@
 ﻿using Models;
 using Repository;
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace Presenter;
-
-public class PresentQueryPresenter : IPresentQueryPresenter
+namespace Presenter
 {
-    private PresentRepository _presentRepository;
+    public class PresentQueryPresenter : IPresentQueryPresenter
+    {
+        private readonly PresentRepository _presentRepository;
 
-    public PresentQueryPresenter()
-    {
-        _presentRepository = new PresentRepository();
-    }
-    public async Task<IReadOnlyCollection<Present>> LoadWishlistPresentsAsync(string wishlistId)
-    {
-        if (string.IsNullOrEmpty(wishlistId))
+        public PresentQueryPresenter()
         {
-            throw new ArgumentNullException(nameof(wishlistId));
+            _presentRepository = new PresentRepository();
         }
-        var presents =  await _presentRepository.GetPresentsAsync(wishlistId);
-        return presents;
-    }
 
-    public Task SearchPresentsByKeywordAsync(string keyword)
-    {
-        throw new NotImplementedException();
-    }
+        // Загрузка подарков из вишлиста по его ID
+        public async Task<IReadOnlyCollection<Present>> LoadWishlistPresentsAsync(string wishlistId, CancellationToken token)
+        {
+            if (string.IsNullOrEmpty(wishlistId))
+            {
+                throw new ArgumentNullException(nameof(wishlistId));
+            }
 
-    public Task LoadReservedPresentsAsync(string userId)
-    {
-        throw new NotImplementedException();
+            token.ThrowIfCancellationRequested();  // Проверка на отмену
+            var presents = await _presentRepository.GetPresentsAsync(wishlistId, token);
+            return presents;
+        }
+
+        // Поиск подарков по ключевому слову
+        public async Task<IReadOnlyCollection<Present>> SearchPresentsByKeywordAsync(string keyword, CancellationToken token)
+        {
+            if (string.IsNullOrEmpty(keyword))
+            {
+                throw new ArgumentNullException(nameof(keyword));
+            }
+
+            token.ThrowIfCancellationRequested();  // Проверка на отмену
+            var presents = await _presentRepository.SearchPresentsByKeywordAsync(keyword, token);
+            return presents;
+        }
+
+        // Загрузка зарезервированных подарков для пользователя
+        public async Task<IReadOnlyCollection<Present>> LoadReservedPresentsAsync(string userId, CancellationToken token)
+        {
+            if (string.IsNullOrEmpty(userId))
+            {
+                throw new ArgumentNullException(nameof(userId));
+            }
+
+            token.ThrowIfCancellationRequested();  // Проверка на отмену
+            var reservedPresents = await _presentRepository.GetReservedPresentsAsync(userId, token);
+            return reservedPresents;
+        }
     }
 }

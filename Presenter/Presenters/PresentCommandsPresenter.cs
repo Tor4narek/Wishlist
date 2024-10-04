@@ -1,51 +1,64 @@
 ﻿using Models;
 using Repository;
 
-namespace Presenter;
-
-public class PresentCommandsPresenter : IPresentCommandsPresenter
+namespace Presenter
 {
-    PresentRepository _presentRepository;
+    public class PresentCommandsPresenter : IPresentCommandsPresenter
+    {
+        private readonly PresentRepository _presentRepository;
 
-    public PresentCommandsPresenter()
-    {
-        _presentRepository = new PresentRepository();
-    }
-    public async Task AddNewPresentAsync(string Name, string Description, string ReserverId,string WishlistId, CancellationToken token)
-    {
-        if (string.IsNullOrWhiteSpace(Name))
+        public PresentCommandsPresenter()
         {
-            throw new ArgumentNullException(nameof(Name));
+            _presentRepository = new PresentRepository();
         }
 
-        if (string.IsNullOrWhiteSpace(Description))
+        // Добавление нового подарка
+        public async Task AddNewPresentAsync(string name, string description, string reserverId, string wishlistId, CancellationToken token)
         {
-            throw new ArgumentNullException(nameof(Description));
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                throw new ArgumentNullException(nameof(name));
+            }
+
+            if (string.IsNullOrWhiteSpace(description))
+            {
+                throw new ArgumentNullException(nameof(description));
+            }
+
+            if (string.IsNullOrWhiteSpace(reserverId))
+            {
+                throw new ArgumentNullException(nameof(reserverId));
+            }
+
+            if (string.IsNullOrWhiteSpace(wishlistId))
+            {
+                throw new ArgumentNullException(nameof(wishlistId));
+            }
+
+            Guid id = Guid.NewGuid();
+            Present present = new Present(id, name, description, wishlistId, false, reserverId);
+            
+            token.ThrowIfCancellationRequested();  // Проверка на отмену
+            await _presentRepository.AddPresentAsync(present, token);
         }
 
-        if (string.IsNullOrWhiteSpace(ReserverId))
+        // Удаление подарка по ID
+        public async Task DeletePresentAsync(Guid presentId, CancellationToken token)
         {
-            throw new ArgumentNullException(nameof(ReserverId));
+            token.ThrowIfCancellationRequested();  // Проверка на отмену
+            await _presentRepository.DeletePresentAsync(presentId, token);
         }
 
-        if (string.IsNullOrWhiteSpace(WishlistId))
+        // Резервирование подарка
+        public async Task ReservePresentAsync(Guid presentId, string reserverId, CancellationToken token)
         {
-            throw new ArgumentNullException(nameof(WishlistId));
+            if (string.IsNullOrWhiteSpace(reserverId))
+            {
+                throw new ArgumentNullException(nameof(reserverId));
+            }
+
+            token.ThrowIfCancellationRequested();  // Проверка на отмену
+            await _presentRepository.ReservePresentAsync(presentId, reserverId, token);
         }
-        Guid id = Guid.NewGuid();
-        Present present = new Present(id, Name, Description,WishlistId ,false, ReserverId);
-        token.ThrowIfCancellationRequested();
-        await _presentRepository.AddPresentAsync(present, token);
-        
-    }
-
-    public Task DeletePresentAsync(Guid presentId)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task ReservePresentAsync(Guid presentId, string reserverId)
-    {
-        throw new NotImplementedException();
     }
 }

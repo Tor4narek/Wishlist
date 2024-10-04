@@ -19,12 +19,14 @@ namespace View
 
         public async Task Start()
         {
+            CancellationToken token = new CancellationToken();
             while (_isProgramRunning)
             {
                 await AuthUser();
                 if (_isProgramRunning && _isLoggedIn)
                 {
-                    var authenticatedUser = await _userPresenter.GetAuthenticatedUserAsync();
+                    
+                    var authenticatedUser = await _userPresenter.GetAuthenticatedUserAsync(token);
 
                     if (authenticatedUser == null)
                     {
@@ -82,6 +84,7 @@ namespace View
         // Метод выхода
         private void ExitProgram()
         {
+            
             Console.WriteLine("Выход из программы...");
             _userPresenter.LogoutAsync().Wait();  // Очищаем данные пользователя
             _isLoggedIn = false;
@@ -90,6 +93,7 @@ namespace View
         // Поиск пользователя
         private async Task SearchUser()
         {
+            CancellationToken token = new CancellationToken();
             Console.WriteLine("Поиск пользователя");
             string keyword;
             do
@@ -104,7 +108,7 @@ namespace View
             while (string.IsNullOrWhiteSpace(keyword));
 
             // Выполняем поиск пользователя
-            var user = await _userPresenter.GetUserByEmailAsync(keyword);
+            var user = await _userPresenter.GetUserByEmailAsync(keyword,token);
 
             if (user != null)
             {
@@ -182,6 +186,7 @@ namespace View
         // Регистрация нового пользователя
         private async Task RegisterUser()
         {
+            CancellationToken token = new CancellationToken();
             while (true)
             {
                 Console.WriteLine("Регистрация нового пользователя...");
@@ -224,7 +229,7 @@ namespace View
 
                 try
                 {
-                    await _userPresenter.CreateUserAsync(name, email, password);
+                    await _userPresenter.CreateUserAsync(name, email, password,token);
                     Console.WriteLine("Пользователь успешно зарегистрирован.");
                     break; // Выход из цикла после успешной регистрации
                 }
@@ -238,6 +243,7 @@ namespace View
         // Вход пользователя
         private async Task LoginUser()
         {
+            CancellationToken token = new CancellationToken();
             while (true)
             {
                 Console.WriteLine("Аутентификация пользователя...");
@@ -268,7 +274,7 @@ namespace View
 
                 try
                 {
-                    await _userPresenter.AuthenticateUserAsync(email, password);
+                    await _userPresenter.AuthenticateUserAsync(email, password,token);
                     Console.WriteLine("Пользователь успешно аутентифицирован.");
                     _isLoggedIn = true;
                     break;

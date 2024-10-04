@@ -1,15 +1,14 @@
 ﻿using Models;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
-namespace Presenter;
 
-public interface IPresentCommandsPresenter
+namespace Presenter
 {
-    Task AddNewPresentAsync(string Name, string Description, string ReserverId, string WishlistId,
-        CancellationToken token);
-    Task DeletePresentAsync(Guid presentId);
-    Task ReservePresentAsync(Guid presentId, string reserverId);
+    public interface IPresentCommandsPresenter
+    {
+        Task AddNewPresentAsync(string name, string description, string reserverId, string wishlistId, CancellationToken token);
+        Task DeletePresentAsync(Guid presentId, CancellationToken token);
+        Task ReservePresentAsync(Guid presentId, string reserverId, CancellationToken token);
+    }
 }
