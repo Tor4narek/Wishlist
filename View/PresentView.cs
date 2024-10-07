@@ -11,6 +11,7 @@ namespace View
     {
         private PresentQueryPresenter _presentQueryPresenter;
         private PresentCommandsPresenter _presentCommandsPresenter;
+        private WishlistPresenter _wishlistPresenter;
 
         public PresentView()
         {
@@ -57,7 +58,7 @@ namespace View
                     menuActions = new Dictionary<int, Func<Task>>()
                     {
                        
-                        { 1, async () => await ReservePresent(wishlistId,user) }, // Изменение подарка
+                        { 1, async () => await ReservePresent(wishlist,user) }, // Изменение подарка
                         { 2, () => Task.FromResult(continueRunning = false) } // Возврат назад
                     };
 
@@ -166,8 +167,9 @@ namespace View
             throw new NotImplementedException();
         }
 
-        private async Task ReservePresent(string wishlistId, User user)
+        private async Task ReservePresent(Wishlist wishlistOld, User user)
         {
+           var  wishlistId = wishlistOld.Id;
             CancellationToken token = new CancellationToken();
             try
             {
@@ -203,7 +205,9 @@ namespace View
                 // Получаем выбранный вишлист по индексу
                 var selectedPresent = presents.ElementAt(selectedPresentIndex - 1);
                
-                                    await _presentCommandsPresenter.ReservePresentAsync(selectedPresent.Id,user.Id,token);
+                await _presentCommandsPresenter.ReservePresentAsync(selectedPresent.Id,user.Id,token);
+                var newPresentNumber = (int.Parse(wishlistOld.PresentsNumber)+1).ToString();
+                await _wishlistPresenter.UpdateWishlistAsync(wishlistOld, newPresentNumber, token);
                 Console.WriteLine("Подарок забронирован");
             }
             catch (Exception e)

@@ -9,11 +9,15 @@ namespace Repository
 {
     public class WishlistRepository : IWishlistRepository
     {
-        private readonly FileRepository<Wishlist> _repository;
+        private readonly IFileRepository<Wishlist> _repository;
 
         public WishlistRepository()
         {
             _repository = new FileRepository<Wishlist>("../../data/Wishlists.json", "wishlists");
+        }
+        public WishlistRepository(IFileRepository<Wishlist> repository)
+        {
+            _repository = repository;
         }
 
         // Получение всех вишлистов пользователя по userId

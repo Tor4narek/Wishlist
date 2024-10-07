@@ -5,11 +5,16 @@ namespace Presenter
 {
     public class PresentCommandsPresenter : IPresentCommandsPresenter
     {
-        private readonly PresentRepository _presentRepository;
+        private readonly IPresentRepository _presentRepository;
 
         public PresentCommandsPresenter()
         {
             _presentRepository = new PresentRepository();
+        }
+
+        public PresentCommandsPresenter(IPresentRepository presentRepository)
+        {
+            _presentRepository = presentRepository;
         }
 
         // Добавление нового подарка

@@ -9,11 +9,15 @@ namespace Repository
 {
     public class PresentRepository : IPresentRepository
     {
-        private readonly FileRepository<Present> _repository;
+        private readonly IFileRepository<Present> _repository;
 
         public PresentRepository()
         {
             _repository = new FileRepository<Present>("../../data/Presents.json", "presents.json");
+        }
+        public PresentRepository(IFileRepository<Present> repository)
+        {
+            _repository = repository;
         }
 
         public async Task<IReadOnlyCollection<Present>> GetPresentsAsync(string wishlistId, CancellationToken token)

@@ -8,11 +8,18 @@ namespace Repository
 {
     public class UserRepository : IUserRepository
     {
-        private readonly FileRepository<User> _repository;
-
+        private readonly IFileRepository<User> _repository;
+        
         public UserRepository()
         {
             _repository = new FileRepository<User>("../../data/Users.json", "users");
+        }
+        // Дополнительный конструктор для тестов (или для гибкой зависимости)
+        
+
+        public UserRepository(IFileRepository<User> repository)
+        {
+            _repository = repository;
         }
 
         public async Task<User> GetUserAsync(string userId, CancellationToken token)

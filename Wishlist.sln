@@ -10,6 +10,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Presenter", "Presenter\Pres
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "View", "View\View.csproj", "{BBC5BC1A-A567-4AC4-8727-2FADCC87F6E6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wishlist.Tests", "Wishlist.Tests\Wishlist.Tests.csproj", "{C708A72B-4672-469F-96F8-3EFD8EFBBD92}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,5 +38,9 @@ Global
 		{BBC5BC1A-A567-4AC4-8727-2FADCC87F6E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BBC5BC1A-A567-4AC4-8727-2FADCC87F6E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BBC5BC1A-A567-4AC4-8727-2FADCC87F6E6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C708A72B-4672-469F-96F8-3EFD8EFBBD92}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C708A72B-4672-469F-96F8-3EFD8EFBBD92}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C708A72B-4672-469F-96F8-3EFD8EFBBD92}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C708A72B-4672-469F-96F8-3EFD8EFBBD92}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

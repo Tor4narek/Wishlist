@@ -9,13 +9,18 @@ namespace Presenter
 {
     public class WishlistPresenter : IWishlistPresenter
     {
-        private readonly WishlistRepository _wishlistRepository;
-        private readonly UserPresenter _userPresenter;
+        private readonly IWishlistRepository _wishlistRepository;
+        private readonly IUserPresenter _userPresenter;
 
         public WishlistPresenter()
         {
             _wishlistRepository = new WishlistRepository();
             _userPresenter = new UserPresenter();
+        }
+        public WishlistPresenter(IWishlistRepository wishlistRepository,IUserPresenter userPresenter)
+        {
+            _wishlistRepository = wishlistRepository;
+            _userPresenter = userPresenter;
         }
 
         // Метод для загрузки всех вишлистов пользователя
@@ -40,12 +45,6 @@ namespace Presenter
         }
 
         // Метод для добавления нового вишлиста
-
-
-        // public Task<IReadOnlyCollection<Wishlist>> LoadUserWishlistsAsync(string userId)
-        // {
-        //     throw new NotImplementedException();
-        // }
 
         public async Task AddNewWishlistAsync(string w_name, string w_description, string w_ownerId, string w_presentsNumber, CancellationToken token)
         {
@@ -85,6 +84,18 @@ namespace Presenter
 
             token.ThrowIfCancellationRequested();
             await _wishlistRepository.DeleteWishlistAsync(wishlistId.ToString(), token);
+        }
+
+        public async Task UpdateWishlistAsync(Wishlist wishlist, string w_presentsNumber, CancellationToken token)
+        {
+            if (string.IsNullOrWhiteSpace(w_presentsNumber))
+            {
+                throw new ArgumentException("Presents number cannot be null or empty.", nameof(w_presentsNumber));
+            }
+            var newWishlist = new Wishlist(wishlist.Id, wishlist.Name, wishlist.Description, wishlist.OwnerId, w_presentsNumber);
+            token.ThrowIfCancellationRequested();
+            await _wishlistRepository.UpdateWishlistAsync(newWishlist,token);
+            
         }
     }
 }

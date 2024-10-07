@@ -9,11 +9,16 @@ namespace Presenter
 {
     public class PresentQueryPresenter : IPresentQueryPresenter
     {
-        private readonly PresentRepository _presentRepository;
+        private readonly IPresentRepository _presentRepository;
 
         public PresentQueryPresenter()
         {
             _presentRepository = new PresentRepository();
+        }
+        public PresentQueryPresenter(IPresentRepository presentRepository)
+        {
+            _presentRepository = presentRepository;
+            
         }
 
         // Загрузка подарков из вишлиста по его ID
@@ -35,6 +40,7 @@ namespace Presenter
             if (string.IsNullOrEmpty(keyword))
             {
                 throw new ArgumentNullException(nameof(keyword));
+                
             }
 
             token.ThrowIfCancellationRequested();  // Проверка на отмену

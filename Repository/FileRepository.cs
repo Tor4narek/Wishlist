@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Repository
 {
-    public class FileRepository<T>
+    public class FileRepository<T> : IFileRepository<T>
     {
         private readonly string _filePath;
         private readonly string _tableName;

@@ -12,5 +12,6 @@ namespace Presenter
         Task AddNewWishlistAsync(string w_name, string w_description, string w_ownerId, string w_presentsNumber, CancellationToken token);
         
         Task DeleteWishlistAsync(Guid wishlistId, CancellationToken token);
+        Task UpdateWishlistAsync(Wishlist wishlist, string w_presentsNumber, CancellationToken token);
     }
 }

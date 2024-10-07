@@ -10,9 +10,19 @@ namespace Presenter
 {
     public class UserPresenter : IUserPresenter
     {
-        private readonly AuthenticationService _authService = new AuthenticationService();
-        private readonly UserRepository _userRepository = new UserRepository();
+        private readonly IAuthenticationService _authService;
+        private readonly IUserRepository _userRepository;
 
+        public UserPresenter(IUserRepository _userRepositoryMock, IAuthenticationService _authServiceMock)
+        {
+            _userRepository = _userRepositoryMock;
+            _authService = _authServiceMock;
+        }
+        public UserPresenter()
+        {
+            _userRepository = new UserRepository();
+            _authService = new AuthenticationService();
+        }
         // Метод для создания нового пользователя
         public async Task CreateUserAsync(string name, string email, string password, CancellationToken token)
         {
