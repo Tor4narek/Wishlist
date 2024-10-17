@@ -50,12 +50,14 @@ namespace Repository
             List<Present> presents = await _repository.GetAllAsync(token);
 
             var filteredPresents = presents.Where(p => 
-                p.Name.Contains(keyword, StringComparison.OrdinalIgnoreCase) ||
-                p.Description.Contains(keyword, StringComparison.OrdinalIgnoreCase))
+                    !p.IsReserved &&  // Условие, чтобы показывать только незарезервированные подарки
+                    (p.Name.Contains(keyword, StringComparison.OrdinalIgnoreCase) ||
+                     p.Description.Contains(keyword, StringComparison.OrdinalIgnoreCase)))
                 .ToList();
 
             return filteredPresents;
         }
+
 
         public async Task ReservePresentAsync(Guid presentId, string reserverId, CancellationToken token)
         {

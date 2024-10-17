@@ -152,11 +152,107 @@ namespace View
             }
         }
 
-        public void ShowSearchedPresents(List<Present> presents)
+      
+
+        public async Task ShowSearchedPresents(CancellationToken token, User user)
         {
-            throw new NotImplementedException();
+           
+            Console.WriteLine("Поиск подарка");
+            string keyword;
+            do
+            {
+                Console.Write("Введите название подарка: ");
+                keyword = Console.ReadLine();
+                if (string.IsNullOrWhiteSpace(keyword))
+                {
+                    Console.WriteLine("Поле не может быть пустым. Пожалуйста, введите корректный Email или имя.");
+                }
+            }
+            while (string.IsNullOrWhiteSpace(keyword));
+
+            // Выполняем поиск пользовател
+            IReadOnlyCollection<Present> presents = await _presentQueryPresenter.SearchPresentsByKeywordAsync(keyword,token);
+            if (presents != null)
+            {
+                Console.WriteLine("Результаты поиска:");
+                var counter = 0;    
+                foreach (var present in presents)
+                {
+                    counter++;
+                    Console.WriteLine($"{counter} Имя: {present.Name}");
+                }
+                
+
+                var searchMenuActions = new Dictionary<int, Func<Task>>()
+                {
+                    { 1, async () => await ShowPresent(presents,user) },   // изменение подарка
+                    { 2, () => Task.CompletedTask }                  // Возврат в главное меню
+                };
+
+                var searchMenuLabels = new Dictionary<int, string>()
+                {
+                    { 1, "Посмотреть подарок" },
+                    { 2, "Назад в главное меню" }
+                };
+
+                var menuView1 = new MenuView(searchMenuActions, searchMenuLabels);
+                await menuView1.ExecuteMenuChoice();  // Показываем меню действий после поиска пользователя
+            }
+            else
+            {
+                Console.WriteLine("Подарок не найден.");
+            }
         }
 
+        private async Task ShowPresent(IReadOnlyCollection<Present> presents,User user)
+        {
+            try
+            {
+                // Спрашиваем у пользователя, какой подарок он хочет посмотреть
+                int selectedPresentIndex;
+                do
+                {
+                    Console.Write("\nВведите номер подарка, который хотите посмотреть: ");
+                    string input = Console.ReadLine();
+
+                    // Проверка ввода номера подарка
+                    if (!int.TryParse(input, out selectedPresentIndex) || selectedPresentIndex < 1 || selectedPresentIndex > presents.Count)
+                    {
+                        Console.WriteLine("Неверный ввод. Пожалуйста, введите корректный номер подарка.");
+                    }
+                }
+                while (selectedPresentIndex < 1 || selectedPresentIndex > presents.Count);
+
+                // Получаем выбранный подарок по индексу
+                var selectedPresent = presents.ElementAt(selectedPresentIndex - 1);
+
+                // Выводим информацию о подарке
+                Console.WriteLine($"Имя: {selectedPresent.Name}");
+                Console.WriteLine($"Описание: {selectedPresent.Description}");
+
+                // Предлагаем дальнейшие действия
+                var menuActions = new Dictionary<int, Func<Task>>()
+                {
+                    { 1, async () => await _presentCommandsPresenter.ReservePresentAsync(selectedPresent.Id,user.Id , new CancellationToken()) },
+                    { 2, () => Task.CompletedTask }  // Возврат в меню
+                };
+
+                var menuLabels = new Dictionary<int, string>()
+                {
+                    { 1, "Зарезервировать подарок" },
+                    { 2, "Назад" }
+                };
+
+                var menuView = new MenuView(menuActions, menuLabels);
+                await menuView.ExecuteMenuChoice();  // Показываем меню действий с выбранным подарком
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Произошла ошибка при просмотре подарка: {e.Message}");
+            }
+        }
+
+        
         public void ShowReservedPresents(List<Present> reservedPresents)
         {
             throw new NotImplementedException();

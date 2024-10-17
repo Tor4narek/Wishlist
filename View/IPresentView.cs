@@ -11,8 +11,8 @@ namespace View;
 public interface IPresentView
 {
     Task ShowUserPresents(string userId);
-    Task AddPresent(string userId, string wishlistId); 
-    void ShowSearchedPresents(List<Present> presents);
+    Task AddPresent(string userId, string wishlistId);
+    Task ShowSearchedPresents(CancellationToken token,User user);
     void ShowReservedPresents(List<Present> reservedPresents);
     Task UpdatePresentList();
 }

@@ -49,7 +49,7 @@ public class MenuView
         while (true)
         {
             ShowMenu();
-            int choice = GetUserInput();
+            var choice = GetUserInput();
 
             if (_menuActions.ContainsKey(choice))
             {

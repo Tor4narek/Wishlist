@@ -25,7 +25,6 @@ namespace View
                 await AuthUser();
                 if (_isProgramRunning && _isLoggedIn)
                 {
-                    
                     var authenticatedUser = await _userPresenter.GetAuthenticatedUserAsync(token);
 
                     if (authenticatedUser == null)
@@ -49,13 +48,12 @@ namespace View
                 var username = user.Name;
                 _isLoggedIn = true;
 
-                // Определяем действия для меню пользователя
                 var menuActions = new Dictionary<int, Func<Task>>()
                 {
-                    { 1, async () => await _wishlistView.StartWishlist(user) },  // Асинхронный вызов метода для работы с вишлистами
-                    { 2, async () => await SearchUser() },                       // Асинхронный вызов поиска пользователя
-                    { 3, async () =>  SearchGift() },                       // Асинхронный вызов поиска подарка
-                    { 4, async () => ExitProgram() }                             // Выход из программы
+                    { 1, async () => await _wishlistView.StartWishlist(user) },
+                    { 2, async () => await SearchUser() },
+                    { 3, async () =>  await SearchPresents() },
+                    { 4, async () => ExitProgram() }
                 };
 
                 var menuLabels = new Dictionary<int, string>()
@@ -66,13 +64,12 @@ namespace View
                     { 4, "Выход" }
                 };
 
-                // Используем универсальный класс MenuView
                 var menuView = new MenuView(menuActions, menuLabels);
 
                 while (_isLoggedIn)
                 {
                     Console.WriteLine($"Привет, {username}!");
-                    await menuView.ExecuteMenuChoice();  // Показываем меню и выполняем действия
+                    await menuView.ExecuteMenuChoice();
                 }
             }
             catch (Exception e)
@@ -82,11 +79,10 @@ namespace View
         }
 
         // Метод выхода
-        private void ExitProgram()
+        private async Task ExitProgram()
         {
-            
             Console.WriteLine("Выход из программы...");
-            _userPresenter.LogoutAsync().Wait();  // Очищаем данные пользователя
+            await _userPresenter.LogoutAsync();
             _isLoggedIn = false;
         }
 
@@ -94,31 +90,21 @@ namespace View
         private async Task SearchUser()
         {
             CancellationToken token = new CancellationToken();
-            Console.WriteLine("Поиск пользователя");
-            string keyword;
-            do
-            {
-                Console.Write("Введите email или имя для поиска: ");
-                keyword = Console.ReadLine();
-                if (string.IsNullOrWhiteSpace(keyword))
-                {
-                    Console.WriteLine("Поле не может быть пустым. Пожалуйста, введите корректный Email или имя.");
-                }
-            }
-            while (string.IsNullOrWhiteSpace(keyword));
+            Console.WriteLine("Поиск пользователя (нажмите 'Esc' для отмены)");
 
-            // Выполняем поиск пользователя
-            var user = await _userPresenter.GetUserByEmailAsync(keyword,token);
+            string keyword = await ReadInputWithEsc("Введите email или имя для поиска: ");
+            if (keyword == null) return;
+
+            var user = await _userPresenter.GetUserByEmailAsync(keyword, token);
 
             if (user != null)
             {
-                Console.WriteLine("Результаты поиска:");
                 Console.WriteLine($"Имя: {user.Name}, Email: {user.Email}");
 
                 var searchMenuActions = new Dictionary<int, Func<Task>>()
                 {
-                    { 1, async () => await ShowUserWishes(user) },   // Показать вишлисты найденного пользователя
-                    { 2, () => Task.CompletedTask }                  // Возврат в главное меню
+                    { 1, async () => await ShowUserWishes(user) },
+                    { 2, () => Task.CompletedTask }
                 };
 
                 var searchMenuLabels = new Dictionary<int, string>()
@@ -128,11 +114,25 @@ namespace View
                 };
 
                 var menuView = new MenuView(searchMenuActions, searchMenuLabels);
-                await menuView.ExecuteMenuChoice();  // Показываем меню действий после поиска пользователя
+                await menuView.ExecuteMenuChoice();
             }
             else
             {
                 Console.WriteLine("Пользователи не найдены.");
+            }
+        }
+
+        private async Task SearchPresents()
+        {
+            try
+            {
+                CancellationToken token = new CancellationToken();
+                User user = await _userPresenter.GetAuthenticatedUserAsync(token);
+                await _presentView.ShowSearchedPresents(token, user);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Ошибка при поиске подарков: {e.Message}");
             }
         }
 
@@ -148,23 +148,15 @@ namespace View
                 Console.WriteLine($"Ошибка при показе вишлистов: {ex.Message}");
             }
         }
-        
-
-        // Поиск подарка
-        private void SearchGift()
-        {
-            Console.WriteLine("Логика поиска подарка...");
-            // Добавьте здесь свою логику поиска
-        }
 
         // Меню аутентификации
         public async Task AuthUser()
         {
             var menuActions = new Dictionary<int, Func<Task>>()
             {
-                { 1, async () => await RegisterUser() },  // Регистрация
-                { 2, async () => await LoginUser() },     // Вход
-                { 3, () => Task.Run(() => System.Environment.Exit(0)) }  // Выход
+                { 1, async () => await RegisterUser() },
+                { 2, async () => await LoginUser() },
+                { 3, () => Task.Run(() => System.Environment.Exit(0)) }
             };
 
             var menuLabels = new Dictionary<int, string>()
@@ -179,7 +171,7 @@ namespace View
             while (!_isLoggedIn)
             {
                 Console.WriteLine("Выберите действие:");
-                await menuView.ExecuteMenuChoice();  // Показываем меню аутентификации
+                await menuView.ExecuteMenuChoice();
             }
         }
 
@@ -189,49 +181,22 @@ namespace View
             CancellationToken token = new CancellationToken();
             while (true)
             {
-                Console.WriteLine("Регистрация нового пользователя...");
+                Console.WriteLine("Регистрация нового пользователя (нажмите 'Esc' для отмены)...");
 
-                string name;
-                do
-                {
-                    Console.Write("Введите имя: ");
-                    name = Console.ReadLine();
-                    if (string.IsNullOrWhiteSpace(name))
-                    {
-                        Console.WriteLine("Имя не может быть пустым. Пожалуйста, введите корректное имя.");
-                    }
-                }
-                while (string.IsNullOrWhiteSpace(name));
+                string name = await ReadInputWithEsc("Введите имя: ");
+                if (name == null) return;
 
-                string email;
-                do
-                {
-                    Console.Write("Введите электронную почту: ");
-                    email = Console.ReadLine();
-                    if (string.IsNullOrWhiteSpace(email))
-                    {
-                        Console.WriteLine("Электронная почта не может быть пустой. Пожалуйста, введите корректный адрес.");
-                    }
-                }
-                while (string.IsNullOrWhiteSpace(email));
+                string email = await ReadInputWithEsc("Введите электронную почту: ");
+                if (email == null) return;
 
-                string password;
-                do
-                {
-                    Console.Write("Введите пароль: ");
-                    password = Console.ReadLine();
-                    if (string.IsNullOrWhiteSpace(password))
-                    {
-                        Console.WriteLine("Пароль не может быть пустым. Пожалуйста, введите пароль.");
-                    }
-                }
-                while (string.IsNullOrWhiteSpace(password));
+                string password = await ReadInputWithEsc("Введите пароль: ");
+                if (password == null) return;
 
                 try
                 {
-                    await _userPresenter.CreateUserAsync(name, email, password,token);
+                    await _userPresenter.CreateUserAsync(name, email, password, token);
                     Console.WriteLine("Пользователь успешно зарегистрирован.");
-                    break; // Выход из цикла после успешной регистрации
+                    break;
                 }
                 catch (Exception ex)
                 {
@@ -246,35 +211,17 @@ namespace View
             CancellationToken token = new CancellationToken();
             while (true)
             {
-                Console.WriteLine("Аутентификация пользователя...");
+                Console.WriteLine("Аутентификация пользователя (нажмите 'Esc' для отмены)...");
 
-                string email;
-                do
-                {
-                    Console.Write("Введите электронную почту: ");
-                    email = Console.ReadLine();
-                    if (string.IsNullOrWhiteSpace(email))
-                    {
-                        Console.WriteLine("Электронная почта не может быть пустой. Пожалуйста, введите корректный адрес.");
-                    }
-                }
-                while (string.IsNullOrWhiteSpace(email));
+                string email = await ReadInputWithEsc("Введите электронную почту: ");
+                if (email == null) return;
 
-                string password;
-                do
-                {
-                    Console.Write("Введите пароль: ");
-                    password = Console.ReadLine();
-                    if (string.IsNullOrWhiteSpace(password))
-                    {
-                        Console.WriteLine("Пароль не может быть пустым. Пожалуйста, введите пароль.");
-                    }
-                }
-                while (string.IsNullOrWhiteSpace(password));
+                string password = await ReadInputWithEsc("Введите пароль: ");
+                if (password == null) return;
 
                 try
                 {
-                    await _userPresenter.AuthenticateUserAsync(email, password,token);
+                    await _userPresenter.AuthenticateUserAsync(email, password, token);
                     Console.WriteLine("Пользователь успешно аутентифицирован.");
                     _isLoggedIn = true;
                     break;
@@ -285,6 +232,53 @@ namespace View
                 }
             }
         }
+
+        // Общий метод для чтения ввода с отменой через Esc
+        private async Task<string> ReadInputWithEsc(string prompt)
+        {
+            Console.Write(prompt);
+            StringBuilder input = new StringBuilder();
+
+            while (true)
+            {
+                if (Console.KeyAvailable)
+                {
+                    var key = Console.ReadKey(true);
+
+                    // Если нажата клавиша Tab, возвращаем null для отмены ввода
+                    if (key.Key == ConsoleKey.Tab)
+                    {
+                        Console.WriteLine("\nВвод отменен, возвращение в меню...");
+                        return null;
+                    }
+                    // Если нажата клавиша Enter, завершаем ввод
+                    else if (key.Key == ConsoleKey.Enter)
+                    {
+                        Console.WriteLine(); // Переход на новую строку после завершения ввода
+                        break;
+                    }
+                    // Обработка удаления символов при нажатии Backspace
+                    else if (key.Key == ConsoleKey.Backspace && input.Length > 0)
+                    {
+                        input.Remove(input.Length - 1, 1);
+                        Console.Write("\b \b"); // Удаление символа из консоли
+                    }
+                    // Добавление символа в строку, если это не управляющий символ
+                    else if (!char.IsControl(key.KeyChar))
+                    {
+                        input.Append(key.KeyChar);
+                        Console.Write(key.KeyChar); // Отображение символа в консоли
+                    }
+                }
+
+                // Немного времени для уменьшения нагрузки на CPU
+                await Task.Delay(50);
+            }
+
+            return input.ToString();
+        }
+
+
 
         public void UpdateUserList()
         {

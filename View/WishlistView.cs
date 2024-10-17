@@ -36,7 +36,7 @@ public class WishlistView : IWishlistView
             var menuLabels = new Dictionary<int, string>()
             {
                 { 1, "Создать новый вишлист" },
-                { 2, "Изменить вишлист" },
+                { 2, "Посмотреть вишлист" },
                 { 3, "Назад" }
             };
 
