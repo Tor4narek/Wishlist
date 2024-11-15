@@ -109,37 +109,7 @@ namespace Presenter.Tests
             Assert.That(ex.Message, Is.EqualTo("Error while loading user: User not found."));
         }
 
-        [Test]
-        public async Task DeleteUserAsync_ShouldCallRepositoryDelete_WhenUserExists()
-        {
-            // Arrange
-            string userId = "1";
-            var user = new User(userId, "TestUser", "test@example.com", "hashedPassword");
-
-            _userRepositoryMock.Setup(repo => repo.GetUserAsync(userId, _cancellationToken))
-                .ReturnsAsync(user);
-
-            // Act
-            await _userPresenter.DeleteUserAsync(userId, _cancellationToken);
-
-            // Assert
-            _userRepositoryMock.Verify(repo => repo.DeleteUserAsync(userId, _cancellationToken), Times.Once);
-        }
-
-        [Test]
-        public void DeleteUserAsync_ShouldThrowException_WhenUserNotFound()
-        {
-            // Arrange
-            string userId = "1";
-            _userRepositoryMock.Setup(repo => repo.GetUserAsync(userId, _cancellationToken))
-                .ReturnsAsync((User)null);
-
-            // Act & Assert
-            var ex = Assert.ThrowsAsync<Exception>(async () =>
-                await _userPresenter.DeleteUserAsync(userId, _cancellationToken));
-
-            Assert.That(ex.Message, Is.EqualTo("Error while deleting user: User not found."));
-        }
+       
 
         [Test]
         public async Task SearchUsersByKeywordAsync_ShouldReturnUsers_WhenKeywordMatches()

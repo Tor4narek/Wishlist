@@ -32,8 +32,8 @@ namespace Presenter.Tests
             string wishlistId = "test_wishlist_id";
             var expectedPresents = new List<Present>
             {
-                new Present(Guid.NewGuid(), "Present 1", "Description 1", wishlistId, false, null),
-                new Present(Guid.NewGuid(), "Present 2", "Description 2", wishlistId, false, null)
+                new Present(Guid.NewGuid().ToString(), "Present 1", "Description 1", wishlistId, false, null),
+                new Present(Guid.NewGuid().ToString(), "Present 2", "Description 2", wishlistId, false, null)
             };
             _presentRepositoryMock.Setup(repo => repo.GetPresentsAsync(wishlistId, _cancellationToken)).ReturnsAsync(expectedPresents);
 
@@ -65,7 +65,7 @@ namespace Presenter.Tests
             string keyword = "test_keyword";
             var expectedPresents = new List<Present>
             {
-                new Present(Guid.NewGuid(), "Keyword Present", "Description", "wishlistId", false, null)
+                new Present(Guid.NewGuid().ToString(), "Keyword Present", "Description", "wishlistId", false, null)
             };
             _presentRepositoryMock.Setup(repo => repo.SearchPresentsByKeywordAsync(keyword, _cancellationToken)).ReturnsAsync(expectedPresents);
 
@@ -97,7 +97,7 @@ namespace Presenter.Tests
             string userId = "test_user_id";
             var expectedReservedPresents = new List<Present>
             {
-                new Present(Guid.NewGuid(), "Reserved Present", "Description", "wishlistId", true, userId)
+                new Present(Guid.NewGuid().ToString(), "Reserved Present", "Description", "wishlistId", true, userId)
             };
             _presentRepositoryMock.Setup(repo => repo.GetReservedPresentsAsync(userId, _cancellationToken)).ReturnsAsync(expectedReservedPresents);
 

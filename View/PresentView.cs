@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Repository;
 
 namespace View
 {
@@ -21,7 +22,7 @@ namespace View
 
         public async Task StartPresents(User user, Wishlist wishlist, bool update)
         {
-            string userId = user.Id;
+            var userId = user.Id;
             string wishlistId = wishlist.Id;
             string wishlistName = wishlist.Name;
             bool continueRunning = true;
@@ -87,8 +88,6 @@ namespace View
         public async Task ShowUserPresents(string wishlistId)
         {
             CancellationToken token = new CancellationToken();
-            try
-            {
                 IReadOnlyCollection<Present> presents = await _presentQueryPresenter.LoadWishlistPresentsAsync(wishlistId,token);
 
                 if (presents == null || presents.Count == 0)
@@ -101,11 +100,8 @@ namespace View
                 {
                     Console.WriteLine($"Имя: {present.Name}, Описание: {present.Description}");
                 }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Ошибка при загрузке подарков: {ex.Message}");
-            }
+            
+          
         }
 
         public async Task AddPresent(string userId, string wishlistId)
@@ -113,8 +109,6 @@ namespace View
             var cancellationTokenSource = new CancellationTokenSource();
             CancellationToken token = cancellationTokenSource.Token;
 
-            try
-            {
                 Console.WriteLine("Создание подарка");
 
                 string p_name;
@@ -145,11 +139,8 @@ namespace View
 
                 await _presentCommandsPresenter.AddNewPresentAsync(p_name, p_description, userId, wishlistId, token);
                 Console.WriteLine("Подарок успешно создан.");
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine($"Произошла ошибка: {e.Message}");
-            }
+            
+          
         }
 
       
@@ -206,8 +197,7 @@ namespace View
 
         private async Task ShowPresent(IReadOnlyCollection<Present> presents,User user)
         {
-            try
-            {
+           
                 // Спрашиваем у пользователя, какой подарок он хочет посмотреть
                 int selectedPresentIndex;
                 do
@@ -245,11 +235,8 @@ namespace View
 
                 var menuView = new MenuView(menuActions, menuLabels);
                 await menuView.ExecuteMenuChoice();  // Показываем меню действий с выбранным подарком
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine($"Произошла ошибка при просмотре подарка: {e.Message}");
-            }
+            
+          
         }
 
         
@@ -302,11 +289,11 @@ namespace View
                 var selectedPresent = presents.ElementAt(selectedPresentIndex - 1);
                
                 await _presentCommandsPresenter.ReservePresentAsync(selectedPresent.Id,user.Id,token);
-                var newPresentNumber = (int.Parse(wishlistOld.PresentsNumber)+1).ToString();
+                var newPresentNumber = (wishlistOld.PresentsNumber+1).ToString();
                 await _wishlistPresenter.UpdateWishlistAsync(wishlistOld, newPresentNumber, token);
                 Console.WriteLine("Подарок забронирован");
             }
-            catch (Exception e)
+            catch (ReservePresentException e)
             {
                 Console.WriteLine($"Произошла ошибка при бронировании товара: {e.Message}");
             }

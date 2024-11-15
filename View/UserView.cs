@@ -19,7 +19,7 @@ namespace View
 
         public async Task Start()
         {
-            CancellationToken token = new CancellationToken();
+            var token = new CancellationToken();
             while (_isProgramRunning)
             {
                 await AuthUser();
@@ -43,8 +43,7 @@ namespace View
         // Меню для пользователя
         public async Task ShowUser(User user)
         {
-            try
-            {
+           
                 var username = user.Name;
                 _isLoggedIn = true;
 
@@ -71,12 +70,8 @@ namespace View
                     Console.WriteLine($"Привет, {username}!");
                     await menuView.ExecuteMenuChoice();
                 }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine($"Произошла ошибка: {e.Message}");
-            }
         }
+        
 
         // Метод выхода
         private async Task ExitProgram()
@@ -124,29 +119,17 @@ namespace View
 
         private async Task SearchPresents()
         {
-            try
-            {
-                CancellationToken token = new CancellationToken();
-                User user = await _userPresenter.GetAuthenticatedUserAsync(token);
-                await _presentView.ShowSearchedPresents(token, user);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine($"Ошибка при поиске подарков: {e.Message}");
-            }
+            CancellationToken token = new CancellationToken();
+            User user = await _userPresenter.GetAuthenticatedUserAsync(token);
+            await _presentView.ShowSearchedPresents(token, user);
+            
         }
 
         private async Task ShowUserWishes(User user)
         {
-            try
-            {
-                await _wishlistView.ShowUserWishlistsAsync(user);
-                await _wishlistView.UpdateWishlist(user, false);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Ошибка при показе вишлистов: {ex.Message}");
-            }
+            await _wishlistView.ShowUserWishlistsAsync(user);
+            await _wishlistView.UpdateWishlist(user, false);
+            
         }
 
         // Меню аутентификации
@@ -191,17 +174,18 @@ namespace View
 
                 string password = await ReadInputWithEsc("Введите пароль: ");
                 if (password == null) return;
-
                 try
                 {
                     await _userPresenter.CreateUserAsync(name, email, password, token);
                     Console.WriteLine("Пользователь успешно зарегистрирован.");
                     break;
                 }
-                catch (Exception ex)
+                catch (AuthenticationServiceException e)
                 {
-                    Console.WriteLine($"Ошибка при регистрации: {ex.Message}. Попробуйте снова.");
+                    Console.WriteLine(e);
+                    throw;
                 }
+                   
             }
         }
 
@@ -226,7 +210,7 @@ namespace View
                     _isLoggedIn = true;
                     break;
                 }
-                catch (Exception ex)
+                catch (AuthenticationServiceException ex)
                 {
                     Console.WriteLine($"Ошибка при аутентификации: {ex.Message}. Попробуйте снова.");
                 }
@@ -277,9 +261,7 @@ namespace View
 
             return input.ToString();
         }
-
-
-
+        
         public void UpdateUserList()
         {
             throw new NotImplementedException();

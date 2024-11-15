@@ -14,7 +14,7 @@ public class WishlistView : IWishlistView
 
     public async Task StartWishlist(User user)
     {
-        string userId = user.Id;
+        var userId = user.Id;
         bool continueRunning = true;
 
         while (continueRunning)
@@ -51,25 +51,19 @@ public class WishlistView : IWishlistView
                 Console.ReadKey();
             }
         }
-
         Console.WriteLine("Загрузка...");
     }
-
     public async Task ShowUserWishlistsAsync(User user)
     {
-        CancellationToken token = new CancellationToken();
-        try
-        {
+            CancellationToken token = new CancellationToken();
             // Загружаем вишлисты пользователя
             IReadOnlyCollection<Wishlist> wishlists = await _wishlistPresenter.LoadUserWishlistsAsync(user.Id,token);
-
             // Проверяем наличие вишлистов
             if (wishlists == null || wishlists.Count == 0)
             {
                 Console.WriteLine("У вас нет доступных вишлистов.");
                 return;
             }
-
             // Выводим все вишлисты пользователя
             Console.WriteLine("Вишлисты:\n");
             int index = 1;
@@ -78,20 +72,11 @@ public class WishlistView : IWishlistView
                 Console.WriteLine($"{index}. Имя: {wishlist.Name}, Описание: {wishlist.Description}, {wishlist.PresentsNumber} подарков");
                 index++;
             }
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine($"Произошла ошибка при загрузке вишлистов: {e.Message}");
-        }
     }
-
     public async Task AddWishlistAsync(string w_ownerId)
     {
         CancellationToken token = new CancellationToken();
-        try
-        {
             Console.WriteLine("Создание вишлиста");
-
             string w_name;
             do
             {
@@ -104,7 +89,6 @@ public class WishlistView : IWishlistView
                 }
             }
             while (string.IsNullOrWhiteSpace(w_name));
-
             string w_description;
             do
             {
@@ -120,18 +104,12 @@ public class WishlistView : IWishlistView
 
             await _wishlistPresenter.AddNewWishlistAsync(w_name, w_description, w_ownerId, "0",token);
             Console.WriteLine("Вишлист успешно создан.");
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine($"Произошла ошибка: {e.Message}");
-        }
     }
 
     public async Task UpdateWishlist(User user, bool update)
     {
         CancellationToken token = new CancellationToken();
-        try
-        {
+       
             // Загружаем вишлисты пользователя
             IReadOnlyCollection<Wishlist> wishlists = await _wishlistPresenter.LoadUserWishlistsAsync(user.Id,token);
 
@@ -141,10 +119,8 @@ public class WishlistView : IWishlistView
                 Console.WriteLine("У вас нет доступных вишлистов для изменения.");
                 return;
             }
-
             // Выводим список вишлистов
             await ShowUserWishlistsAsync(user);
-
             // Спрашиваем у пользователя, какой вишлист он хочет обновить
             int selectedWishlistIndex;
             do
@@ -165,12 +141,5 @@ public class WishlistView : IWishlistView
            
                 // Вызываем функцию для работы с подарками в выбранном вишлисте
                 await _presentView.StartPresents(user, selectedWishlist, update);
-           
-            
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine($"Произошла ошибка при обновлении вишлиста: {e.Message}");
-        }
     }
 }

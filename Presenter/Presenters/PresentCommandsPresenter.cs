@@ -1,5 +1,8 @@
 ﻿using Models;
 using Repository;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Presenter
 {
@@ -20,49 +23,24 @@ namespace Presenter
         // Добавление нового подарка
         public async Task AddNewPresentAsync(string name, string description, string reserverId, string wishlistId, CancellationToken token)
         {
-            if (string.IsNullOrWhiteSpace(name))
-            {
-                throw new ArgumentNullException(nameof(name));
-            }
-
-            if (string.IsNullOrWhiteSpace(description))
-            {
-                throw new ArgumentNullException(nameof(description));
-            }
-
-            if (string.IsNullOrWhiteSpace(reserverId))
-            {
-                throw new ArgumentNullException(nameof(reserverId));
-            }
-
-            if (string.IsNullOrWhiteSpace(wishlistId))
-            {
-                throw new ArgumentNullException(nameof(wishlistId));
-            }
-
-            Guid id = Guid.NewGuid();
+            string id = Guid.NewGuid().ToString(); // Генерация нового строкового идентификатора
             Present present = new Present(id, name, description, wishlistId, false, reserverId);
             
-            token.ThrowIfCancellationRequested();  // Проверка на отмену
+            token.ThrowIfCancellationRequested(); // Проверка на отмену
             await _presentRepository.AddPresentAsync(present, token);
         }
 
         // Удаление подарка по ID
-        public async Task DeletePresentAsync(Guid presentId, CancellationToken token)
+        public async Task DeletePresentAsync(string presentId, CancellationToken token)
         {
-            token.ThrowIfCancellationRequested();  // Проверка на отмену
+            token.ThrowIfCancellationRequested(); // Проверка на отмену
             await _presentRepository.DeletePresentAsync(presentId, token);
         }
 
         // Резервирование подарка
-        public async Task ReservePresentAsync(Guid presentId, string reserverId, CancellationToken token)
+        public async Task ReservePresentAsync(string presentId, string reserverId, CancellationToken token)
         {
-            if (string.IsNullOrWhiteSpace(reserverId))
-            {
-                throw new ArgumentNullException(nameof(reserverId));
-            }
-
-            token.ThrowIfCancellationRequested();  // Проверка на отмену
+            token.ThrowIfCancellationRequested(); // Проверка на отмену
             await _presentRepository.ReservePresentAsync(presentId, reserverId, token);
         }
     }

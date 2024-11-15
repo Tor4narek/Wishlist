@@ -8,63 +8,56 @@ namespace Repository
 {
     public class UserRepository : IUserRepository
     {
-        private readonly IFileRepository<User> _repository;
-        
+        private readonly DatabaseRepository<User> _repository;
+
         public UserRepository()
         {
-            _repository = new FileRepository<User>("../../data/Users.json", "users");
-        }
-        // Дополнительный конструктор для тестов (или для гибкой зависимости)
-        
-
-        public UserRepository(IFileRepository<User> repository)
-        {
-            _repository = repository;
+            _repository = new DatabaseRepository<User>("Host=80.64.24.84;Port=5432;Username=admin;Password=12345;Database=wishlistdb", "Users");
         }
 
+        // Получение пользователя по Id
         public async Task<User> GetUserAsync(string userId, CancellationToken token)
         {
             token.ThrowIfCancellationRequested();
-            var users = await _repository.GetAllAsync(token);
-            return users.FirstOrDefault(u => u.Id == userId);
+            return await _repository.GetSingleAsync("id = @Id", new { Id = userId }, token);
         }
 
+        // Поиск пользователей по ключевому слову
         public async Task<IReadOnlyCollection<User>> SearchUsersByKeywordAsync(string keyword, CancellationToken token)
         {
             token.ThrowIfCancellationRequested();
-            var users = await _repository.GetAllAsync(token);
-
-            var filteredUsers = users.Where(u => 
-                u.Name.Contains(keyword, StringComparison.OrdinalIgnoreCase) ||
-                u.Email.Contains(keyword, StringComparison.OrdinalIgnoreCase))
-                .ToList();
-
-            return filteredUsers;
+            return await _repository.GetListAsync(
+                "name ILIKE @Keyword OR email ILIKE @Keyword",
+                new { Keyword = $"%{keyword}%" },
+                token);
         }
 
+        // Получение пользователя по email
         public async Task<User> GetUserByEmailAsync(string email, CancellationToken token)
         {
             token.ThrowIfCancellationRequested();
-            var users = await _repository.GetAllAsync(token);
-            return users.FirstOrDefault(u => u.Email == email);
+            return await _repository.GetSingleAsync("email = @Email", new { Email = email }, token);
         }
 
+        // Добавление нового пользователя
         public async Task AddUserAsync(User user, CancellationToken token)
         {
             token.ThrowIfCancellationRequested();
             await _repository.AddAsync(user, token);
         }
 
+        // Удаление пользователя по Id
         public async Task DeleteUserAsync(string userId, CancellationToken token)
         {
             token.ThrowIfCancellationRequested();
-            await _repository.DeleteAsync(u => u.Id == userId, token);
+            await _repository.DeleteAsync("id = @Id", new { Id = userId }, token);
         }
 
+        // Обновление пользователя по Id
         public async Task UpdateUserAsync(User updatedUser, CancellationToken token)
         {
             token.ThrowIfCancellationRequested();
-            await _repository.UpdateAsync(u => u.Id == updatedUser.Id, updatedUser, token);
+            await _repository.UpdateAsync("id = @Id", new { Id = updatedUser.Id }, updatedUser, token);
         }
     }
 }

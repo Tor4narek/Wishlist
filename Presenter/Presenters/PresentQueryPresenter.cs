@@ -24,11 +24,6 @@ namespace Presenter
         // Загрузка подарков из вишлиста по его ID
         public async Task<IReadOnlyCollection<Present>> LoadWishlistPresentsAsync(string wishlistId, CancellationToken token)
         {
-            if (string.IsNullOrEmpty(wishlistId))
-            {
-                throw new ArgumentNullException(nameof(wishlistId));
-            }
-
             token.ThrowIfCancellationRequested();  // Проверка на отмену
             var presents = await _presentRepository.GetPresentsAsync(wishlistId, token);
             return presents;
@@ -37,12 +32,6 @@ namespace Presenter
         // Поиск подарков по ключевому слову
         public async Task<IReadOnlyCollection<Present>> SearchPresentsByKeywordAsync(string keyword, CancellationToken token)
         {
-            if (string.IsNullOrEmpty(keyword))
-            {
-                throw new ArgumentNullException(nameof(keyword));
-                
-            }
-
             token.ThrowIfCancellationRequested();  // Проверка на отмену
             var presents = await _presentRepository.SearchPresentsByKeywordAsync(keyword, token);
             return presents;
@@ -51,11 +40,6 @@ namespace Presenter
         // Загрузка зарезервированных подарков для пользователя
         public async Task<IReadOnlyCollection<Present>> LoadReservedPresentsAsync(string userId, CancellationToken token)
         {
-            if (string.IsNullOrEmpty(userId))
-            {
-                throw new ArgumentNullException(nameof(userId));
-            }
-
             token.ThrowIfCancellationRequested();  // Проверка на отмену
             var reservedPresents = await _presentRepository.GetReservedPresentsAsync(userId, token);
             return reservedPresents;

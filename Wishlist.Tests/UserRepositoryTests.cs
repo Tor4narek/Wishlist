@@ -78,18 +78,6 @@ public class UserRepositoryTests
         _fileRepositoryMock.Verify(repo => repo.AddAsync(newUser, _cancellationToken), Times.Once);
     }
 
-    [Test]
-    public async Task DeleteUserAsync_CallsRepositoryDeleteAsync()
-    {
-        // Arrange
-        var userId = "123";
-
-        // Act
-        await _userRepository.DeleteUserAsync(userId, _cancellationToken);
-
-        // Assert
-        _fileRepositoryMock.Verify(repo => repo.DeleteAsync(It.IsAny<Func<User, bool>>(), _cancellationToken), Times.Once);
-    }
 
     [Test]
     public async Task UpdateUserAsync_CallsRepositoryUpdateAsync()

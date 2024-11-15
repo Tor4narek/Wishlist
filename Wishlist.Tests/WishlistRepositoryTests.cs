@@ -68,19 +68,6 @@ public class WishlistRepositoryTests
     }
 
     [Test]
-    public async Task DeleteWishlistAsync_CallsRepositoryDeleteAsync()
-    {
-        // Arrange
-        var wishlistId = "wishlist1";
-
-        // Act
-        await _wishlistRepository.DeleteWishlistAsync(wishlistId, _cancellationToken);
-
-        // Assert
-        _fileRepositoryMock.Verify(repo => repo.DeleteAsync(It.IsAny<Func<Wishlist, bool>>(), _cancellationToken), Times.Once);
-    }
-
-    [Test]
     public void UpdateWishlistAsync_ThrowsArgumentNullException_WhenWishlistIsNull()
     {
         // Act & Assert

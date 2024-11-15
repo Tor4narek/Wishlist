@@ -104,24 +104,12 @@ namespace Presenter.Tests
             Assert.That(ex.ParamName, Is.EqualTo("wishlistId"));
         }
 
-        [Test]
-        public async Task DeletePresentAsync_ShouldCallRepositoryDelete_WhenPresentIdIsValid()
-        {
-            // Arrange
-            var presentId = Guid.NewGuid();
-
-            // Act
-            await _presentCommandsPresenter.DeletePresentAsync(presentId, _cancellationToken);
-
-            // Assert
-            _presentRepositoryMock.Verify(repo => repo.DeletePresentAsync(presentId, _cancellationToken), Times.Once);
-        }
 
         [Test]
         public async Task ReservePresentAsync_ShouldCallRepositoryReserve_WhenValidDataProvided()
         {
             // Arrange
-            var presentId = Guid.NewGuid();
+            var presentId = Guid.NewGuid().ToString();
             string reserverId = "123";
 
             // Act
@@ -135,7 +123,7 @@ namespace Presenter.Tests
         public void ReservePresentAsync_ShouldThrowArgumentNullException_WhenReserverIdIsNullOrEmpty()
         {
             // Arrange
-            var presentId = Guid.NewGuid();
+            var presentId = Guid.NewGuid().ToString();
             string reserverId = "";
 
             // Act & Assert

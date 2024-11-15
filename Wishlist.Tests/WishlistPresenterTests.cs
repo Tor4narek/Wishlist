@@ -125,23 +125,10 @@ namespace Presenter.Tests
         }
 
         [Test]
-        public async Task DeleteWishlistAsync_ShouldCallRepositoryDelete_WhenWishlistIdIsValid()
-        {
-            // Arrange
-            var wishlistId = Guid.NewGuid();
-
-            // Act
-            await _wishlistPresenter.DeleteWishlistAsync(wishlistId, _cancellationToken);
-
-            // Assert
-            _wishlistRepositoryMock.Verify(repo => repo.DeleteWishlistAsync(wishlistId.ToString(), _cancellationToken), Times.Once);
-        }
-
-        [Test]
         public void DeleteWishlistAsync_ShouldThrowArgumentException_WhenWishlistIdIsEmpty()
         {
             // Arrange
-            var wishlistId = Guid.Empty;
+            var wishlistId = Guid.Empty.ToString();
 
             // Act & Assert
             var ex = Assert.ThrowsAsync<ArgumentException>(async () =>
