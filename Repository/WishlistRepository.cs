@@ -22,7 +22,7 @@ namespace Repository
         public WishlistRepository()
         {
             _repository = new DatabaseRepository<Wishlist>(
-                "Host=80.64.24.84;Port=5432;Username=admin;Password=12345;Database=wishlistdb",
+                "Host=localhost;Port=5432;Username=admin;Password=12345;Database=wishlistdb",
                 "Wishlists");
         }
 
