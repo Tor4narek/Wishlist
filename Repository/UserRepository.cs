@@ -12,7 +12,7 @@ namespace Repository
 
         public UserRepository()
         {
-            _repository = new DatabaseRepository<User>("Host=80.64.24.84;Port=5432;Username=admin;Password=12345;Database=wishlistdb", "Users");
+            _repository = new DatabaseRepository<User>("Host=localhost;Port=5432;Username=admin;Password=12345;Database=wishlistdb", "Users");
         }
 
         // Получение пользователя по Id
